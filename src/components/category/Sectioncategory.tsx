@@ -1,14 +1,14 @@
 "use client"
-import React, { FormEvent, useState } from 'react'
-import PageBreadcrumb from '../common/PageBreadCrumb'
-import ComponentCard from '../common/ComponentCard'
-import Label from '../form/Label'
-import Input from '../form/input/InputField'
-import FileInput from '../form/input/FileInput'
-import Button from '../ui/button/Button'
-import { toast } from 'react-toastify'
-import axiosInstance from '@/lib/config/axiosInstance'
-import Image from 'next/image'
+import React, { FormEvent, useState } from 'react';
+import PageBreadcrumb from "../common/PageBreadcrumb";
+import ComponentCard from '../common/ComponentCard';
+import Label from '../form/Label';
+import Input from '../form/input/InputField';
+import FileInput from '../form/input/FileInput';
+import Button from '../ui/button/Button';
+import { toast } from 'react-toastify';
+import axiosInstance from '@/lib/config/axiosInstance';
+import Image from 'next/image';
 import categoryImg from "@/assets/category.jpeg";
 
 
@@ -125,6 +125,7 @@ const Sectioncategory = ({ showListAction }: sectioncategoryprops) => {
         <Label>Category Image</Label>
         <FileInput
          className="custom-class"
+         name=""
          onChange={handleImageChange}
           />
       </div>

@@ -63,7 +63,7 @@ const headerfootersetting = () => {
         formData.append("1", footerLogo)
     
         try {
-          const response = await fetch('https://9912-103-206-131-194.ngrok-free.app/graphql', {
+          const response = await fetch('https://cb94-103-206-131-194.ngrok-free.app/graphql', {
             method: 'POST',
             body: formData,
           })

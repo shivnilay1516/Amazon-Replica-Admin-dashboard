@@ -81,7 +81,6 @@ const getIndex = (name: string): number => {
 }
 
 
-
 const Homepagedesign = () => {
   const [options, setOptions] = useState<OptionType[]>([]);
   const [formData, setFormData] = useState<Record<string, any>>({});
@@ -91,26 +90,90 @@ const Homepagedesign = () => {
     crouselimagelength: '',
     imageLength: '',
   });
+  const [presentationformData, setPresentationformData] = useState({
+    presentationheading:'',
+    presentationimagelength:'',
+    presentimageLength:'',
+    advertisementdata:'',
+    advertisementpath:'',
+  });
   const [selectedImage, setSelectedImage] = useState<string | undefined>();
   const [selectCategory, setSelectCategory] = useState<string>();
   const [loading, setLoading] = useState(true);
   const [image, setImage] = useState<ImageContainer[]>([]);
   const [crouselimage, setCrouselImage] = useState<ImageContainer[]>([]);
-  const [imageLength, setImageLength]=useState('')
-  const[error, setError]=useState('')
-  const[validCount, setValidCount]=useState(0)
+  const [presentationimage, setPresentationImage] = useState<ImageContainer[]>([]);
+  const [imageLength, setImageLength]=useState('');
+  const [presentimageLength, setPresentimageLength]=useState('');
+  const[error, setError]=useState('');
+  const[validCount, setValidCount]=useState(0);
 
   const dummy_img = '/images/carousel/carousel-02.png';
   const API_URL = 'https://cb94-103-206-131-194.ngrok-free.app';
+  // const API_URL = 'https://amazonreplica.onrender.com';
 
-console.log("crouselimage",crouselimage)
 
-  const handleChange = (selectedOption: SingleValue<OptionType>) => {
-    if (selectedOption) {
-      setSelectedImage(`${API_URL}${selectedOption.image}`);
-      setSelectCategory(selectedOption.category);
-    }
-  };
+
+  // console.log("presentationimage",presentationimage)
+
+// Api for Select option
+
+const handleChange = (selectedOption: SingleValue<OptionType>) => {
+  if (selectedOption) {
+    setSelectedImage(`${API_URL}${selectedOption.image}`);
+    setSelectCategory(selectedOption.category);
+  }
+};
+
+const fetchOptions = async () => {
+  try {
+    const response = await axios.post(`${API_URL}/graphql`, {
+      query: `
+        query Query {
+          getHomeSectionCategory {
+            id
+            categoryname
+            categoryimage
+            resMessage
+            resStatus
+          }
+        }
+      `,
+    });
+
+    const roles = response.data.data.getHomeSectionCategory;
+    const formattedOptions = roles.map((role: any) => ({
+      value: role.id,
+      label: (
+        <div className="flex items-center gap-2">
+          <Image
+            src={role.categoryimage}
+            alt={role.categoryimage}
+            width={20}
+            height={20}
+            className="w-5 h-5 rounded-full"
+          />
+          {role.categoryname}
+        </div>
+      ),
+      image: role.categoryimage,
+      category: role.categoryname,
+    }));
+
+    setOptions(formattedOptions);
+    setLoading(false);
+  } catch (error) {
+    console.error('Failed to fetch roles:', error);
+    setLoading(false);
+  }
+};
+
+useEffect(() => {
+  fetchOptions();
+}, []);
+
+
+// API for Four Column Data Feteching
 
   const handleChangeData = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -281,6 +344,8 @@ console.log("crouselimage",crouselimage)
     console.log("file", file);
   };
 
+  // API for Crousel Data fetching
+
   const handleImageLengthChange=(e: React.ChangeEvent<HTMLInputElement>)=>{
     const value=parseInt(e.target.value, 10);
     // setCrouselImage(e.target.value);
@@ -299,7 +364,8 @@ console.log("crouselimage",crouselimage)
     }
   }
 
-  const handleCrouselChangeData = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+const handleCrouselChangeData = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setCrouselFormData((prev) => ({
       ...prev,
@@ -309,10 +375,12 @@ console.log("crouselimage",crouselimage)
     console.log("all data", name, value)
   };
 
-  const handleCrouselImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
+
+const handleCrouselImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     const name = e.target.name;
-    const index = getIndex(name); 
+    const index = getCrouselIndex(name); 
 
     if (file && index >= 0) {
       setCrouselImage((prev) => [
@@ -323,117 +391,11 @@ console.log("crouselimage",crouselimage)
     console.log("Uploaded file for index", index, file);
   };
 
-
-  const getIndex = (name: string): number => {
+  const getCrouselIndex = (name: string): number => {
     const match = name.match(/\d+$/);
     return match ? parseInt(match[0], 10) : -1;
   };
 
-
-  // const handleCrouselImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-  //   const { name, type, value, files } = e.target;
-  
-  //   if (type === 'file' && files?.[0]) {
-  //     const index = getIndex(name);
-  //     setCrouselImage((prev) => {
-  //       return [...prev.filter((f) => f.index !== index), { index, file: files[0] }];
-  //     });
-  //   } else {
-  //     setCrouselFormData((prev) => ({
-  //       ...prev,
-  //       [name]: value,
-  //     }));
-  //   }
-  // };
-  
-//   const handleCrouselSubmitData = async (e: React.FormEvent) => {
-//     e.preventDefault();
-//     setLoading(true);
-
-//     const crouselformDataToSubmit = new FormData();
-
-//     const imageLength = parseInt(crouselformData['imageLength'], 10); // from your form state
-
-//     // Generate dynamic images array
-//     const imagesArray = Array.from({ length: imageLength }, (_, i) => {
-//       const fileObj = crouselimage.find((f) => f.index === i);
-//       const path = crouselformData[`path-${i}`] || "";
-    
-//       return {
-//         link: path || "",           // actual link from input
-//         file: null,                 // leave this as null — to be replaced via FormData+map
-//       };
-//     });
-
-//     const payload = {
-//       query: `
-//        mutation CarouseladdSectionDesign($hompagesectioncategoryId: Int, $heading: String, $imglimit: String, $rows: [RowInput], $perslideimage: String) {
-//   carouseladdSectionDesign(hompagesectioncategory_id: $hompagesectioncategoryId, heading: $heading, imglimit: $imglimit, rows: $rows, perslideimage: $perslideimage) {
-//     id
-//     hompagesectioncategory_id
-//     advertisement
-//     advertisement_link
-//     heading
-//     imglimit
-//     perslideimage
-//     content
-//     status
-//     resMessage
-//     resStatus
-//     createdIstAt
-//     updatedIstAt
-//   }
-// } `,
-//       variables: {
-//         hompagesectioncategoryId: 1,
-//         heading: crouselformData['crouselheading'],
-//         perslideimage: crouselformData['crouselimagelength'],
-//         imglimit: crouselformData['imageLength'],
-//         rows: [
-//           {
-//             columns: [
-//               {
-//                 images: imagesArray, 
-//               },
-//             ],
-//           },
-//         ],
-//       },
-//     };
-
-//     const mapObj: Record<string, string[]> = {};
-//     crouselimage.forEach((img: ImageContainer) => {
-//       mapObj[`${img.index}`] = [`variables.rows.0.columns.0.images.${img.index}.file`];
-//     });
-
-//     crouselformDataToSubmit.append('operations', JSON.stringify(payload));
-//     crouselformDataToSubmit.append("map", JSON.stringify(mapObj));
-//     // crouselformDataToSubmit.append("map", "{\"link0\":[\"variables.rows.0.columns.0.images.0.link\"],\"link1\":[\"variables.rows.0.columns.0.images.1.link\"],\"link2\":[\"variables.rows.0.columns.0.images.2.link\"],\"link3\": [\"variables.rows.0.columns.0.images.3.link\"],\"link4\": [\"variables.rows.0.columns.0.images.4.link\"],\"link5\": [\"variables.rows.0.columns.0.images.5.link\"],\"link6\": [\"variables.rows.0.columns.0.images.6.link\"]}");
-
-//     crouselimage.forEach((img: ImageContainer) => {
-//       crouselformDataToSubmit.append(`${img.index}`, img.file);
-//       // crouselformDataToSubmit.append(`link${img.index}`, URL.createObjectURL(img.file));
-//     })
-//     console.log("dsds", payload.variables);
-//     console.log("ds22", crouselformDataToSubmit);
-    
-//     console.log("formDataToSubmit__",crouselformDataToSubmit);
-//     try {
-//       const response = await axios.post(`${API_URL}/graphql`, crouselformDataToSubmit, {
-//         headers: { 'Content-Type': 'multipart/form-data' },
-//       });
-//       console.log('GraphQL Response:', response.data);
-//       alert('Data submitted successfully!');
-//     } catch (error: any) {
-//       console.error('Error:', error.response?.data || error.message);
-//       alert('There was an error submitting the form.');
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
-
-
-console.log("crouselformData",crouselformData)
 const handleCrouselSubmitData = async (e: React.FormEvent) => {
   e.preventDefault();
   setLoading(true);
@@ -443,7 +405,7 @@ const handleCrouselSubmitData = async (e: React.FormEvent) => {
 
   // Build images array with link only, files handled via map+FormData
   const imagesArray = Array.from({ length: imageLength }, (_, i) => {
-    const path = crouselformData[`path-${i}`] || "";
+    const path = (crouselformData as any)[`path-${i}`] || "";
     return {
       link: path,
       file: null,
@@ -518,52 +480,180 @@ const handleCrouselSubmitData = async (e: React.FormEvent) => {
   }
 };
 
+const handlePresentationImageLengthChange=(e: React.ChangeEvent<HTMLInputElement>)=>{
+  const value=parseInt(e.target.value, 10);
+  // setCrouselImage(e.target.value);
+  setPresentationformData(prev => ({
+    ...prev,
+    presentimageLength: e.target.value,
+  }));
 
-  const fetchOptions = async () => {
-    try {
-      const response = await axios.post(`${API_URL}/graphql`, {
-        query: `
-          query Query {
-            getHomeSectionCategory {
-              id
-              categoryname
-              categoryimage
-              resMessage
-              resStatus
+  if(value>=6 && value<=20){
+    setValidCount(value);
+    setError("");
+  }
+  else{
+    setValidCount(0);
+    setError("Please Enter length of image between 6 to 20")
+  }
+}
+
+const handlePresentImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+ const file = e.target.files?.[0];
+    const name = e.target.name;
+    const index = getPresentationIndex(name); 
+
+    if (file && index >= 0) {
+      setPresentationImage((prev) => [
+        ...prev.filter((f) => f.index !== index),
+        { index, file },
+      ]);
+    }
+    console.log("Images", index, file);
+};
+
+const handlePresentationData = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const { name, value } = e.target;
+  setPresentationformData((prev) => ({
+    ...prev,
+    [name]: value,
+  }));
+
+  console.log("all data", name, value)
+};
+
+const handlePresentationAdvertisement=(e:React.ChangeEvent<HTMLInputElement>)=>{
+  const { name, files } = e.target;
+  if (files && files.length > 0) {
+    const file = files[0];
+    setPresentationformData(prev => ({
+      ...prev,
+      [name]: file, // ✅ dynamically set the file under the correct field name
+    }));
+    console.log("File input received:", name, file);
+  }
+};
+
+ const getPresentationIndex = (name: string): number => {
+    const match = name.match(/\d+$/);
+    return match ? parseInt(match[0], 10) : -1;
+  };
+
+const handlePresentationSubmitData = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+
+  const presentationformDataToSubmit = new FormData();
+  const presentimageLength = parseInt(presentationformData['presentimageLength'], 10);
+
+
+  // Build images array with link only, files handled via map+FormData
+  const imagesArray = Array.from({ length: presentimageLength }, (_, i) => {
+    const path = (presentationformData as any)[`path-${i}`] || "";
+    const heading=(presentationformData as any)[`heading-${i}`]||"";
+    const title=(presentationformData as any)[`title-${i}`]||"";
+
+    return {
+      link: path,
+      file: null,
+      heading: heading,
+      title: title
+    };
+  });
+  let advLink: any = ""
+  const advertisementFile: any = presentationformData['advertisementdata'];
+  if (advertisementFile instanceof File) {
+    advLink = URL.createObjectURL(advertisementFile);
+  } else {
+    advLink = "";
+    console.error("advertisementdata is not a File:", advertisementFile);
+  }
+
+  const payload = {
+    query: `
+     mutation AddSection($heading: String,$advertisement: Upload, $advertisementLink: String,$imglimit:String,$perslideimage:String, $rows: [RowInput], $hompagesectioncategoryId: Int) {
+      advertisementcarouseladdSectionDesign(heading: $heading,advertisement:$advertisement,advertisement_link:$advertisementLink,imglimit: $imglimit,perslideimage: $perslideimage, rows: $rows,hompagesectioncategory_id: $hompagesectioncategoryId) {
+        id
+        hompagesectioncategory_id
+        advertisement
+        advertisement_link
+        heading
+        imglimit
+        perslideimage
+        content
+        status
+        resMessage
+        resStatus
+        createdIstAt
+        updatedIstAt
+      }
+    }`
+    ,
+    variables: {
+      heading: presentationformData['presentationheading'],
+      hompagesectioncategoryId: 2,
+      imglimit: presentationformData['presentimageLength'],
+      advertisement: null,
+      advertisementLink: advLink,
+      perslideimage: presentationformData['presentationimagelength'],
+      rows: [
+        {
+          columns: [
+            {
+              images: imagesArray
             }
-          }
-        `,
-      });
-
-      const roles = response.data.data.getHomeSectionCategory;
-      const formattedOptions = roles.map((role: any) => ({
-        value: role.id,
-        label: (
-          <div className="flex items-center gap-2">
-            <Image
-              src={role.categoryimage}
-              alt={role.categoryimage}
-              width={20}
-              height={20}
-              className="w-5 h-5 rounded-full"
-            />
-            {role.categoryname}
-          </div>
-        ),
-        image: role.categoryimage,
-        category: role.categoryname,
-      }));
-
-      setOptions(formattedOptions);
-      setLoading(false);
-    } catch (error) {
-      console.error('Failed to fetch roles:', error);
-      setLoading(false);
+          ]
+        }
+      ]
     }
   };
-  useEffect(() => {
-    fetchOptions();
-  }, []);
+
+  // Build GraphQL multipart map
+  const mapObj: Record<string, string[]> = {};
+  const mapLinkObj: Record<string, string[]> = {};
+
+  presentationimage.forEach((img: ImageContainer, idx:number) => {
+    mapObj[`${img.index}`] = [`variables.rows.0.columns.0.images.${img.index}.file`];
+    mapLinkObj[`link${img.index}`] = [`variables.rows.0.columns.0.images.${img.index}.link`];
+  });
+  mapObj[presentationimage.length] = [`variables.advertisement`];
+
+  presentationformDataToSubmit.append("operations", JSON.stringify(payload));
+  presentationformDataToSubmit.append("map", JSON.stringify(mapObj));
+  presentationformDataToSubmit.append("map", JSON.stringify(mapLinkObj));
+
+  presentationimage.forEach((img: ImageContainer) => {
+    presentationformDataToSubmit.append(`${img.index}`, img.file);
+    presentationformDataToSubmit.append(`link${img.index}`, URL.createObjectURL(img.file));
+  });
+
+  presentationformDataToSubmit.append(`${presentationimage.length}`, presentationformData['advertisementdata']);
+
+  console.log("`Payload`", payload.variables, presentationformData['advertisementdata'])
+  console.log("submit",presentationformDataToSubmit)
+
+  try {
+    const response = await axios.post(`${API_URL}/graphql`, presentationformDataToSubmit, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+
+    console.log("GraphQL Response:", response.data);
+    alert("Data submitted successfully!");
+  } catch (error: any) {
+    console.error("Submission Error:", error.response?.data || error.message);
+    alert("There was an error submitting the form.");
+  } finally {
+    setLoading(false);
+  }
+};
+
+
+
+useEffect(() => {
+  console.log("presentationimage",presentationimage)
+}, [presentationimage])
 
   return (
     <div>
@@ -869,7 +959,7 @@ const handleCrouselSubmitData = async (e: React.FormEvent) => {
               </div>
           </form>
 
-            <form onSubmit={handleCrouselSubmitData} action=" " className='space-y-6' style={{ display: selectCategory=== "carousel" ? 'block' : 'none' }} >
+          <form onSubmit={handleCrouselSubmitData} action=" " className='space-y-6' style={{ display: selectCategory=== "carousel" ? 'block' : 'none' }} >
                  <div className='flex flex-col'>
                         <Input
                           type="text"
@@ -901,6 +991,67 @@ const handleCrouselSubmitData = async (e: React.FormEvent) => {
                                   className="custom-class"
                                   name={`file-${index}`}
                                   onChange={handleCrouselImageChange}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                 </div>
+              <div className="flex justify-center">
+                  <Button size="sm" variant="primary">
+                    {loading ? 'Submitting...' : 'Submit'}
+                  </Button>
+              </div>
+          </form>
+
+          <form onSubmit={handlePresentationSubmitData} action=" " className='space-y-6' style={{ display: selectCategory=== "advertisement with carousel" ? 'block' : 'none' }} >
+              <div className='flex flex-col'>
+                        <Input
+                          type="text"
+                          placeholder='Enter section heading'
+                          name='presentationheading'
+                          onChange={handlePresentationData}
+                        />
+                        <Input type="number" placeholder='Enter number of image to show'
+                         name="presentationimagelength"
+                         onChange={handlePresentationData}/>
+
+                          <FileInput
+                                  className="custom-class"
+                                  name="advertisementdata"
+                                  onChange={handlePresentationAdvertisement}
+                                />
+                                 <Input type="text" placeholder='Enter advertisement path'
+                         name="advertisementpath"
+                         onChange={handlePresentationData}/>
+
+                        <Input type="number"
+                        placeholder='Enter the image length' 
+                        name="presentimageLength"
+                        value={presentimageLength}
+                        onChange={handlePresentationImageLengthChange}/>
+
+                      {error && <p className='text-red-500 text-sm'>{error}</p>}
+                        <div>
+                            {Array.from({ length: validCount }).map((_, index) => (
+                              <div key={index} className='my-1.5'>
+                                <Input
+                                  type="text"
+                                  placeholder={`Enter the path for image ${index + 1}`}
+                                  name={`path-${index}`}
+                                  onChange={handlePresentationData}
+                                />
+                                <FileInput
+                                  className="custom-class"
+                                  name={`file-${index}`}
+                                  onChange={handlePresentImageChange}
+                                />
+                                <Input type="text" placeholder={`Enter the heading ${index+1}`}
+                                name={`heading-${index}`}
+                                onChange={handlePresentationData}
+                                />
+                                <Input type="text" placeholder={`Enter the title ${index+1}`}
+                                name={`title-${index}`}
+                                onChange={handlePresentationData}
                                 />
                               </div>
                             ))}
