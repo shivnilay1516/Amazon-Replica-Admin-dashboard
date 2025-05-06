@@ -3,7 +3,8 @@ import axios from 'axios';
 
 // Create the instance
 const axiosInstance: any = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://cb94-103-206-131-194.ngrok-free.app',
+  // baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://amazonreplica.onrender.com',
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://cc4a-103-206-131-194.ngrok-free.app',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
