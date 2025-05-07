@@ -55,7 +55,7 @@ const Banner = ({ showListAction }: sectioncategoryprops) => {
       variables: {
         input: {
             bannerlink: bannerLink,
-            bannerimage: null, // Important: set null in variables
+            bannerimage: null, 
         },
       },
     };
@@ -125,6 +125,7 @@ const Banner = ({ showListAction }: sectioncategoryprops) => {
         <Label>Category Image</Label>
         <FileInput
          className="custom-class"
+         name=""
          onChange={handleImageChange}
           />
       </div>

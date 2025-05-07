@@ -84,7 +84,6 @@ const getIndex = (name: string): number => {
 const Homepagedesign = () => {
   const [options, setOptions] = useState<OptionType[]>([]);
   const [formData, setFormData] = useState<Record<string, any>>({});
-  // const [crouselformData, setCrouselFormData] = useState<Record<string, any>>({});
   const [crouselformData, setCrouselFormData] = useState({
     crouselheading: '',
     crouselimagelength: '',
@@ -115,59 +114,59 @@ const Homepagedesign = () => {
 
 // Api for Select option
 
-const handleChange = (selectedOption: SingleValue<OptionType>) => {
-  if (selectedOption) {
-    setSelectedImage(`${API_URL}${selectedOption.image}`);
-    setSelectCategory(selectedOption.category);
-  }
-};
+  const handleChange = (selectedOption: SingleValue<OptionType>) => {
+    if (selectedOption) {
+      setSelectedImage(`${API_URL}${selectedOption.image}`);
+      setSelectCategory(selectedOption.category);
+    }
+  };
 
-const fetchOptions = async () => {
-  try {
-    const response = await axios.post(`${API_URL}/graphql`, {
-      query: `
-        query Query {
-          getHomeSectionCategory {
-            id
-            categoryname
-            categoryimage
-            resMessage
-            resStatus
+  const fetchOptions = async () => {
+    try {
+      const response = await axios.post(`${API_URL}/graphql`, {
+        query: `
+          query Query {
+            getHomeSectionCategory {
+              id
+              categoryname
+              categoryimage
+              resMessage
+              resStatus
+            }
           }
-        }
-      `,
-    });
+        `,
+      });
 
-    const roles = response.data.data.getHomeSectionCategory;
-    const formattedOptions = roles.map((role: any) => ({
-      value: role.id,
-      label: (
-        <div className="flex items-center gap-2">
-          <Image
-            src={role.categoryimage}
-            alt={role.categoryimage}
-            width={20}
-            height={20}
-            className="w-5 h-5 rounded-full"
-          />
-          {role.categoryname}
-        </div>
-      ),
-      image: role.categoryimage,
-      category: role.categoryname,
-    }));
+      const roles = response.data.data.getHomeSectionCategory;
+      const formattedOptions = roles.map((role: any) => ({
+        value: role.id,
+        label: (
+          <div className="flex items-center gap-2">
+            <Image
+              src={role.categoryimage}
+              alt={role.categoryimage}
+              width={20}
+              height={20}
+              className="w-5 h-5 rounded-full"
+            />
+            {role.categoryname}
+          </div>
+        ),
+        image: role.categoryimage,
+        category: role.categoryname,
+      }));
 
-    setOptions(formattedOptions);
-    setLoading(false);
-  } catch (error) {
-    console.error('Failed to fetch roles:', error);
-    setLoading(false);
-  }
-};
+      setOptions(formattedOptions);
+      setLoading(false);
+    } catch (error) {
+      console.error('Failed to fetch roles:', error);
+      setLoading(false);
+    }
+  };
 
-useEffect(() => {
-  fetchOptions();
-}, []);
+  useEffect(() => {
+    fetchOptions();
+  }, []);
 
 
 // API for Four Column Data Feteching
@@ -363,7 +362,7 @@ useEffect(() => {
     }
   }
 
-const handleCrouselChangeData = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCrouselChangeData = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setCrouselFormData((prev) => ({
       ...prev,
@@ -373,7 +372,7 @@ const handleCrouselChangeData = (e: React.ChangeEvent<HTMLInputElement>) => {
     console.log("all data", name, value)
   };
 
-const handleCrouselImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCrouselImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     const name = e.target.name;
     const index = getCrouselIndex(name); 
@@ -392,151 +391,151 @@ const handleCrouselImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     return match ? parseInt(match[0], 10) : -1;
   };
 
-const handleCrouselSubmitData = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoading(true);
+  const handleCrouselSubmitData = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
 
-  const formDataToSubmit = new FormData();
-  const imageLength = parseInt(crouselformData['imageLength'], 10);
+    const formDataToSubmit = new FormData();
+    const imageLength = parseInt(crouselformData['imageLength'], 10);
 
-  // Build images array with link only, files handled via map+FormData
-  const imagesArray = Array.from({ length: imageLength }, (_, i) => {
-    const path = (crouselformData as any)[`path-${i}`] || "";
-    return {
-      link: path,
-      file: null,
-    };
-  });
-
-  const payload = {
-    query: `
-      mutation CarouseladdSectionDesign($hompagesectioncategoryId: Int, $heading: String, $imglimit: String, $rows: [RowInput], $perslideimage: String) {
-        carouseladdSectionDesign(
-          hompagesectioncategory_id: $hompagesectioncategoryId, 
-          heading: $heading, 
-          imglimit: $imglimit, 
-          rows: $rows, 
-          perslideimage: $perslideimage
-        ) {
-          id
-          heading
-          content
-          resStatus
-          resMessage
-        }
-      }
-    `,
-    variables: {
-      hompagesectioncategoryId: 1,
-      heading: crouselformData['crouselheading'],
-      imglimit: crouselformData['imageLength'],
-      perslideimage: crouselformData['crouselimagelength'],
-      rows: [
-        {
-          columns: [
-            {
-              images: imagesArray
-            }
-          ]
-        }
-      ]
-    }
-  };
-
-  // Build GraphQL multipart map
-  const mapObj: Record<string, string[]> = {};
-  crouselimage.forEach((img: ImageContainer) => {
-    mapObj[`${img.index}`] = [`variables.rows.0.columns.0.images.${img.index}.file`];
-  });
-
-  formDataToSubmit.append("operations", JSON.stringify(payload));
-  formDataToSubmit.append("map", JSON.stringify(mapObj));
-
-  // Append actual files
-  crouselimage.forEach((img: ImageContainer) => {
-    formDataToSubmit.append(`${img.index}`, img.file);
-  });
-
-  console.log("Payload", payload.variables)
-
-  try {
-    const response = await axios.post(`${API_URL}/graphql`, formDataToSubmit, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
-      }
+    // Build images array with link only, files handled via map+FormData
+    const imagesArray = Array.from({ length: imageLength }, (_, i) => {
+      const path = (crouselformData as any)[`path-${i}`] || "";
+      return {
+        link: path,
+        file: null,
+      };
     });
 
-    console.log("GraphQL Response:", response.data);
-    alert("Data submitted successfully!");
-  } catch (error: any) {
-    console.error("Submission Error:", error.response?.data || error.message);
-    alert("There was an error submitting the form.");
-  } finally {
-    setLoading(false);
-  }
-};
+    const payload = {
+      query: `
+        mutation CarouseladdSectionDesign($hompagesectioncategoryId: Int, $heading: String, $imglimit: String, $rows: [RowInput], $perslideimage: String) {
+          carouseladdSectionDesign(
+            hompagesectioncategory_id: $hompagesectioncategoryId, 
+            heading: $heading, 
+            imglimit: $imglimit, 
+            rows: $rows, 
+            perslideimage: $perslideimage
+          ) {
+            id
+            heading
+            content
+            resStatus
+            resMessage
+          }
+        }
+      `,
+      variables: {
+        hompagesectioncategoryId: 1,
+        heading: crouselformData['crouselheading'],
+        imglimit: crouselformData['imageLength'],
+        perslideimage: crouselformData['crouselimagelength'],
+        rows: [
+          {
+            columns: [
+              {
+                images: imagesArray
+              }
+            ]
+          }
+        ]
+      }
+    };
+
+    // Build GraphQL multipart map
+    const mapObj: Record<string, string[]> = {};
+    crouselimage.forEach((img: ImageContainer) => {
+      mapObj[`${img.index}`] = [`variables.rows.0.columns.0.images.${img.index}.file`];
+    });
+
+    formDataToSubmit.append("operations", JSON.stringify(payload));
+    formDataToSubmit.append("map", JSON.stringify(mapObj));
+
+    // Append actual files
+    crouselimage.forEach((img: ImageContainer) => {
+      formDataToSubmit.append(`${img.index}`, img.file);
+    });
+
+    console.log("Payload", payload.variables)
+
+    try {
+      const response = await axios.post(`${API_URL}/graphql`, formDataToSubmit, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      console.log("GraphQL Response:", response.data);
+      alert("Data submitted successfully!");
+    } catch (error: any) {
+      console.error("Submission Error:", error.response?.data || error.message);
+      alert("There was an error submitting the form.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
 
 // Presentation(advertisement) API data
 
 
-const handlePresentationImageLengthChange=(e: React.ChangeEvent<HTMLInputElement>)=>{
-  const value=parseInt(e.target.value, 10);
-  // setCrouselImage(e.target.value);
-  setPresentationformData(prev => ({
-    ...prev,
-    presentimageLength: e.target.value,
-  }));
-
-  if(value>=6 && value<=20){
-    setValidCount(value);
-    setError("");
-  }
-  else{
-    setValidCount(0);
-    setError("Please Enter length of image between 6 to 20")
-  }
-}
-
-const handlePresentImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
- const file = e.target.files?.[0];
-    const name = e.target.name;
-    const index = getPresentationIndex(name); 
-
-    if (file && index >= 0) {
-      setPresentationImage((prev) => [
-        ...prev.filter((f) => f.index !== index),
-        { index, file },
-      ]);
-    }
-    console.log("Images", index, file);
-};
-
-const handlePresentationData = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const { name, value } = e.target;
-  setPresentationformData((prev) => ({
-    ...prev,
-    [name]: value,
-  }));
-
-  console.log("all data", name, value)
-};
-
-const handlePresentationAdvertisement=(e:React.ChangeEvent<HTMLInputElement>)=>{
-  const { name, files } = e.target;
-  if (files && files.length > 0) {
-    const file = files[0];
+  const handlePresentationImageLengthChange=(e: React.ChangeEvent<HTMLInputElement>)=>{
+    const value=parseInt(e.target.value, 10);
+    // setCrouselImage(e.target.value);
     setPresentationformData(prev => ({
       ...prev,
-      [name]: file, // ✅ dynamically set the file under the correct field name
+      presentimageLength: e.target.value,
     }));
-    console.log("File input received:", name, file);
-  }
-};
 
- const getPresentationIndex = (name: string): number => {
-    const match = name.match(/\d+$/);
-    return match ? parseInt(match[0], 10) : -1;
+    if(value>=6 && value<=20){
+      setValidCount(value);
+      setError("");
+    }
+    else{
+      setValidCount(0);
+      setError("Please Enter length of image between 6 to 20")
+    }
+  }
+
+  const handlePresentImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+      const name = e.target.name;
+      const index = getPresentationIndex(name); 
+
+      if (file && index >= 0) {
+        setPresentationImage((prev) => [
+          ...prev.filter((f) => f.index !== index),
+          { index, file },
+        ]);
+      }
+      console.log("Images", index, file);
+  };
+
+  const handlePresentationData = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setPresentationformData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+
+    console.log("all data", name, value)
+  };
+
+  const handlePresentationAdvertisement=(e:React.ChangeEvent<HTMLInputElement>)=>{
+    const { name, files } = e.target;
+    if (files && files.length > 0) {
+      const file = files[0];
+      setPresentationformData(prev => ({
+        ...prev,
+        [name]: file, // ✅ dynamically set the file under the correct field name
+      }));
+      console.log("File input received:", name, file);
+    }
+  };
+
+  const getPresentationIndex = (name: string): number => {
+        const match = name.match(/\d+$/);
+        return match ? parseInt(match[0], 10) : -1;
   };
 
 const handlePresentationSubmitData = async (e: React.FormEvent) => {
@@ -648,12 +647,6 @@ const handlePresentationSubmitData = async (e: React.FormEvent) => {
     setLoading(false);
   }
 };
-
-
-
-useEffect(() => {
-  console.log("presentationimage",presentationimage)
-}, [presentationimage])
 
   return (
     <div>

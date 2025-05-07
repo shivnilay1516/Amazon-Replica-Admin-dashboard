@@ -55,7 +55,7 @@ const Sectioncategory = ({ showListAction }: sectioncategoryprops) => {
       variables: {
         input: {
           categoryname: categoryName,
-          categoryimage: null, // Important: set null in variables
+          categoryimage: null,
         },
       },
     };

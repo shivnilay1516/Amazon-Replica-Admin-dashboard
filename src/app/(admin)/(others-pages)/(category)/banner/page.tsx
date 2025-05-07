@@ -12,6 +12,7 @@ export default function SignUp() {
       return !prev;
     });
   };
+  console.log("Hello")
   return (
     <div>
       {showList ? (

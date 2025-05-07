@@ -12,6 +12,7 @@ export default function SignUp() {
       return !prev;
     });
   };
+  
   return (
     <div>
       {showList ? (
