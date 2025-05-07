@@ -76,18 +76,19 @@ const ShowPageSectionCategoryList = ({ showListAction }: any) => {
     fetchCategoryData();
   }, []);
 
+  
   return (
     <div>
       <PageBreadcrumb pageTitle="Category List" />
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-1">
         <div className="space-y-6">
-          <div className="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
+          <div className="overflow-hidden rounded-xl border border-blue-400 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">
             <div className="max-w-full overflow-x-auto">
               <div className="min-w-[920px]">
                 <Table>
-                  <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
+                  <TableHeader className="border-b border-gray-100 bg-[#b8bfee] dark:border-white/[0.05]">
                     <TableRow>
-                      <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                      <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-lg dark:text-gray-400">
                         Category Name
                       </TableCell>
                       <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
@@ -104,11 +105,11 @@ const ShowPageSectionCategoryList = ({ showListAction }: any) => {
 
                   <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                     {categoryData.map((order) => (
-                      <TableRow key={order.id} className='text-center'>
+                      <TableRow key={order.id} className='border-blue-400'>
                         <TableCell className="px-5 py-4 sm:px-6 text-start">
                           <div className="flex items-center gap-3">
                             <div>
-                              <span className="block font-medium text-gray-800 text-theme-sm dark:text-white/90">
+                              <span className="block font-medium text-gray-800 text-theme-sm text-wrap dark:text-white/90">
                                 {order.categoryName}
                               </span>
                             </div>
@@ -116,7 +117,7 @@ const ShowPageSectionCategoryList = ({ showListAction }: any) => {
                         </TableCell>
                           <TableCell className="px-4 py-3 text-theme-sm text-gray-500 dark:text-gray-400">
                             <div className="flex items-center gap-2">
-                              <Tooltip>
+                              {/* <Tooltip>
                                  <TooltipTrigger asChild>
                                 <button
                                   onClick={() => openImageModal(order.Description)}
@@ -128,7 +129,10 @@ const ShowPageSectionCategoryList = ({ showListAction }: any) => {
                                 <TooltipContent>
                                 <span>View</span>
                                 </TooltipContent>
-                              </Tooltip>
+                              </Tooltip> */}
+                           <img src={`${API_URL}${order.Description}`} alt="category img" className='w-full h-40' />
+                                
+                              
                             </div>
                           </TableCell>
                            
