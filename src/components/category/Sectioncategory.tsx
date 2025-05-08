@@ -92,7 +92,7 @@ const Sectioncategory = ({ showListAction }: sectioncategoryprops) => {
 
   const options: DropdownOption[] = [
     {
-      label: "View More",
+      label: "View Category",
       action: () => {
         console.log("view more home page");
         showListAction();

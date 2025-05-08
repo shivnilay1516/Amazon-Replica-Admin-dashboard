@@ -9,6 +9,15 @@ const nextConfig: NextConfig = {
     });
     return config;
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'cc4a-103-206-131-194.ngrok-free.app',
+        pathname: '/**',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

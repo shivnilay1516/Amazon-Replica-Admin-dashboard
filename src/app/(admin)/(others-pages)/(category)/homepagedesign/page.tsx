@@ -1,12 +1,12 @@
 "use client";
+import HomePageCategory from "@/components/category/HomePageCategory";
 import HomePageSectionCategory from "@/components/category/Homepagedesign";
-import ShowPageSectionCategoryList from "@/components/category/ShowPageSectionCategoryList";
 import { useState } from "react";
 
 export default function SignUp() {
   const [showList, setShowList] = useState<boolean>(false);
 
-  const showListAction = () => {
+  const showHomeListAction = () => {
     setShowList((prev) => {
       console.log("Toggling showList from", prev, "to", !prev);
       return !prev;
@@ -15,10 +15,10 @@ export default function SignUp() {
   return (
     <div>
       {showList ? (
-        <ShowPageSectionCategoryList showListAction={showListAction} />
+        <HomePageCategory showHomeListAction={showHomeListAction} />
       ) : (
         <>
-        <HomePageSectionCategory showListAction={showListAction} />
+        <HomePageSectionCategory showHomeListAction={showHomeListAction} />
         </>
       )}
     </div>

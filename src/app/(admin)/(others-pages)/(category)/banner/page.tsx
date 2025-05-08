@@ -1,25 +1,24 @@
 "use client";
 import Banner from "@/components/category/Banner";
-import ShowPageSectionCategoryList from "@/components/category/ShowPageSectionCategoryList";
+import ShowBanner from "@/components/category/ShowBanner";
 import { useState } from "react";
 
 export default function SignUp() {
   const [showList, setShowList] = useState<boolean>(false);
 
-  const showListAction = () => {
+  const showBannerListAction = () => {
     setShowList((prev) => {
-      console.log("Toggling showList from", prev, "to", !prev);
+      // console.log("Toggling showList from", prev, "to", !prev);
       return !prev;
     });
   };
-  console.log("Hello")
   return (
     <div>
       {showList ? (
-        <ShowPageSectionCategoryList showListAction={showListAction} />
+        <ShowBanner showListAction={showBannerListAction} />
       ) : (
         <>
-        <Banner showListAction={showListAction} />
+        <Banner showListAction={showBannerListAction} />
         </>
       )}
     </div>

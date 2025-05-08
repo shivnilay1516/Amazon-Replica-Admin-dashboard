@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from 'react';
 import PageBreadcrumb from '../common/PageBreadcrumb';
+import ComponentCard from '../common/ComponentCard';
 import Label from '../form/Label';
 import FileInput from '../form/input/FileInput';
 import Button from '../ui/button/Button';
@@ -22,6 +23,9 @@ interface ImageContainer {
   file: File;
 }
 
+interface homepagedesigncategory{
+  showHomeListAction:()=> void;
+}
 
 const getIndex = (name: string): number => {
   let index: number = 0;
@@ -81,8 +85,8 @@ const getIndex = (name: string): number => {
 }
 
 
-const Homepagedesign = () => {
-  const [options, setOptions] = useState<OptionType[]>([]);
+const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
+  const [selectOptions, setOptions] = useState<OptionType[]>([]);
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [crouselformData, setCrouselFormData] = useState({
     crouselheading: '',
@@ -110,7 +114,6 @@ const Homepagedesign = () => {
   const dummy_img = '/images/carousel/carousel-02.png';
   const API_URL = 'https://cc4a-103-206-131-194.ngrok-free.app';
   // const API_URL = 'https://amazonreplica.onrender.com';
-
 
 // Api for Select option
 
@@ -314,15 +317,39 @@ const Homepagedesign = () => {
     console.log("dsds", payload.variables);
     
     console.log("formDataToSubmit__",formDataToSubmit);
+    // try {
+    //   const response = await axios.post(`${API_URL}/graphql`, formDataToSubmit, {
+    //     headers: { 'Content-Type': 'multipart/form-data' },
+    //   });
+    //   console.log('GraphQL Response:', response.data);
+    //   alert('Data submitted successfully!');
+    // } catch (error: any) {
+    //   console.error('Error:', error.response?.data || error.message);
+    //   alert('There was an error submitting the form.');
     try {
       const response = await axios.post(`${API_URL}/graphql`, formDataToSubmit, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-      console.log('GraphQL Response:', response.data);
-      alert('Data submitted successfully!');
+    
+      const responseData = response.data as {
+        data?: { column4addSectionDesign: any };
+        errors?: { message: string }[];
+      };
+    
+      if (responseData.errors && responseData.errors.length > 0) {
+        const errorMessage = responseData.errors.map((err: any) => err.message).join('\n');
+        // alert(`GraphQL Error:\n${errorMessage}`);
+        alert(`Somthing wrong:\n${errorMessage}`);
+      } else if (!responseData.data || !responseData.data.column4addSectionDesign) {
+        alert('Submission failed: No data returned.');
+      } else {
+        alert('Data submitted successfully!');
+        console.log('GraphQL Response:', responseData);
+      }
     } catch (error: any) {
-      console.error('Error:', error.response?.data || error.message);
-      alert('There was an error submitting the form.');
+      console.error('Request Error:', error.response?.data || error.message);
+      alert('There was a network or server error submitting the form.');
+    
     } finally {
       setLoading(false);
     }
@@ -648,15 +675,40 @@ const handlePresentationSubmitData = async (e: React.FormEvent) => {
   }
 };
 
+
+
+type DropdownOption = {
+    label: string;
+    action: () => void;
+  };
+
+  const options: DropdownOption[] = [
+    {
+      label: "View Home Category",
+      action: () => {
+        console.log("view more home page");
+        showHomeListAction();
+      },
+    },
+    {
+      label: "Refresh",
+      action: () => {
+        console.log("Refresh clicked");
+      },
+    },
+  ];
+
   return (
     <div>
-      <PageBreadcrumb pageTitle="Home Page Section" />
+      <PageBreadcrumb pageTitle="Home Page Section" />  
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 items-start">
         <div className="border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] py-4 px-5 rounded-2xl">
+        <div className="space-y-6">
+        <ComponentCard title="Section Category Section" isDropDownIcon={true} options={options}>
           <form className="space-y-6 my-6">
             <Label>Select Category</Label>
             <Select
-              options={options}
+              options={selectOptions}
               onChange={handleChange}
               placeholder="Select role"
               classNames={{
@@ -668,7 +720,8 @@ const handlePresentationSubmitData = async (e: React.FormEvent) => {
               }}
             />
           </form>
-
+          </ComponentCard>
+          </div>
           <form onSubmit={handleSubmitData} action=" " className='space-y-6' style={{ display: selectCategory=== "4 columns" ? 'block' : 'none' }} >
               <Label>Category Name</Label>
               <Input

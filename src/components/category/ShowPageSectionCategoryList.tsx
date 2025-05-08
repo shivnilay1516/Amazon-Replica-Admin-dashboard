@@ -1,12 +1,13 @@
 'use client'
-import React, { useEffect, useState } from 'react'
-import PageBreadcrumb from '../common/PageBreadCrumb'
-import { toast } from 'react-toastify'
-import axiosInstance from '@/lib/config/axiosInstance'
-import { Table, TableBody, TableCell, TableHeader, TableRow } from '../ui/table'
-import Badge from '../ui/badge/Badge'
-import { View, Trash2 } from 'lucide-react'
-import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip'
+import React, { useEffect, useState } from 'react';
+import PageBreadcrumb from '../common/PageBreadcrumb';
+import { toast } from 'react-toastify';
+import axiosInstance from '@/lib/config/axiosInstance';
+import { Table, TableBody, TableCell, TableHeader, TableRow } from '../ui/table';
+import Badge from '../ui/badge/Badge';
+import { View, Trash2 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
+import Image from 'next/image';
 
 interface Order {
   id: number;
@@ -15,27 +16,13 @@ interface Order {
   status: string;
 }
 
+console.log(View)
 
 const ShowPageSectionCategoryList = ({ showListAction }: any) => {
   const [categoryData, setCategoryData] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
-
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   const API_URL = 'https://cc4a-103-206-131-194.ngrok-free.app';
 
-  const openImageModal = (imageUrl: string) => {
-    setSelectedImage(`${API_URL}${imageUrl}`);
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setSelectedImage(null);
-    setIsModalOpen(false);
-  };
-
-  // Fetch categories from GraphQL API
   useEffect(() => {
     const fetchCategoryData = async () => {
       setLoading(true);
@@ -86,23 +73,22 @@ const ShowPageSectionCategoryList = ({ showListAction }: any) => {
             <div className="max-w-full overflow-x-auto">
               <div className="min-w-[920px]">
                 <Table>
-                  <TableHeader className="border-b border-gray-100 bg-[#b8bfee] dark:border-white/[0.05]">
+                  <TableHeader className="border-b border-gray-100 bg-[#ecf3ff] dark:border-white/[0.05]">
                     <TableRow>
-                      <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-lg dark:text-gray-400">
+                      <TableCell isHeader className="px-5 py-3 font-medium text-[#465fff] text-start text-theme-lg dark:text-gray-400">
                         Category Name
                       </TableCell>
-                      <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                      <TableCell isHeader className="px-5 py-3 font-medium text-[#465fff] text-center text-theme-lg dark:text-gray-400">
                         Image
                       </TableCell>
-                      <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                      <TableCell isHeader className="px-5 py-3 font-medium text-[#465fff] text-start text-theme-lg dark:text-gray-400">
                         Status
                       </TableCell>
-                      <TableCell isHeader className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400">
+                      <TableCell isHeader className="px-5 py-3 font-medium text-[#465fff] text-start text-theme-lg dark:text-gray-400">
                         Action
                       </TableCell>
                     </TableRow>
                   </TableHeader>
-
                   <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                     {categoryData.map((order) => (
                       <TableRow key={order.id} className='border-blue-400'>
@@ -117,28 +103,12 @@ const ShowPageSectionCategoryList = ({ showListAction }: any) => {
                         </TableCell>
                           <TableCell className="px-4 py-3 text-theme-sm text-gray-500 dark:text-gray-400">
                             <div className="flex items-center gap-2">
-                              {/* <Tooltip>
-                                 <TooltipTrigger asChild>
-                                <button
-                                  onClick={() => openImageModal(order.Description)}
-                                  className='bg-green-400 hover:bg-blue-700 text-white font-bold py-2 px-2 rounded'
-                                >
-                                  <View className="w-4 h-4" />
-                                </button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                <span>View</span>
-                                </TooltipContent>
-                              </Tooltip> */}
-                           <img src={`${API_URL}${order.Description}`} alt="category img" className='w-full h-40' />
-                                
-                              
+                           <Image src={`${API_URL}${order.Description}`} alt="category img" width={600} height={170}  className='w-full h-40 object-cover' />
                             </div>
                           </TableCell>
                            
                         <TableCell className="px-4 py-3 text-start text-theme-sm text-gray-500 dark:text-gray-400">
                           <Badge
-                       
                           >
                             Done
                           </Badge>
@@ -173,25 +143,6 @@ const ShowPageSectionCategoryList = ({ showListAction }: any) => {
           </div>
         </div>
       </div>
-
-      {/* Image Modal */}
-      {isModalOpen && selectedImage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/10">
-          <div className="relative bg-white p-6 rounded-lg shadow-lg max-w-2xl w-full">
-            <button
-              onClick={closeModal}
-              className="absolute top-0.5 right-2 text-gray-700 hover:text-red-500 text-2xl font-bold"
-            >
-              &times;
-            </button>
-            <img
-              src={selectedImage}
-              alt="Category"
-              className="w-full h-auto object-contain rounded"
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 };
