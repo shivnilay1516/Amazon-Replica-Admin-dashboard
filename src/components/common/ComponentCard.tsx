@@ -53,7 +53,7 @@ const ComponentCard: React.FC<ComponentCardProps> = ({
             <Dropdown
               isOpen={isOpen}
               onClose={closeDropdown}
-              className="w-40 p-2"
+              className="w-44 p-2"
             >
               {options.map((item: any, index: number) => (
               <DropdownItem

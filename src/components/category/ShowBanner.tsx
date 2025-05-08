@@ -9,6 +9,8 @@ import {
   TableHeader,
   TableRow,
 } from '../ui/table';
+import { Trash2 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import Image from 'next/image';
 
 interface Banner {
@@ -82,12 +84,12 @@ const ShowBannerImages = ({ showListAction }: any) => {
             <div className="max-w-full overflow-x-auto">
               <div className="min-w-[920px]">
                 <Table>
-                  <TableHeader className="border-b border-gray-100 bg-[#ecf3ff] dark:border-white/[0.05]">
+                  <TableHeader className="border-b border-gray-100 bg-[#ecf3ff] dark:bg-[#101828] dark:border-white/[0.05]">
                     <TableRow>
-                      <TableCell isHeader className="px-5 py-3 text-[#465fff] text-start text-theme-lg">Banner Image</TableCell>
-                      <TableCell isHeader className="px-5 py-3 text-[#465fff] text-start text-theme-lg">Banner Link</TableCell>
-                      <TableCell isHeader className="px-5 py-3 text-[#465fff] text-start text-theme-lg">Status</TableCell>
-                      <TableCell isHeader className="px-5 py-3 text-[#465fff] text-start text-theme-lg">Message</TableCell>
+                    <TableCell isHeader className="px-5 py-3 text-[#465fff] dark:text-[#fff] text-start text-theme-lg">Banner Link</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-[#465fff] dark:text-[#fff] text-center text-theme-lg">Banner Image</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-[#465fff] dark:text-[#fff] text-start text-theme-lg">Status</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-[#465fff] dark:text-[#fff] text-start text-theme-lg">Action</TableCell>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -106,14 +108,28 @@ const ShowBannerImages = ({ showListAction }: any) => {
                       </TableRow>
                     )}
                     {!loading && banners.map((banner) => (
-                      <TableRow key={banner.id}>
+                      <TableRow key={banner.id} className='border-b border-blue-400 dark:border-white/[0.05]'>
+                         <TableCell className="px-5 py-3">{banner.bannerlink}</TableCell>
                         <TableCell className="px-5 py-3">
                           {/* <img src={banner.bannerimage} alt="Banner" className="w-32 h-auto rounded-md" /> */}
                            <Image src={`${API_URL}${banner.bannerimage}`} alt="category img" width={600} height={170}  className='w-full h-40 object-cover' />
                         </TableCell>
-                        <TableCell className="px-5 py-3">{banner.bannerlink}</TableCell>
-                        <TableCell className="px-5 py-3">{banner.resStatus}</TableCell>
-                        <TableCell className="px-5 py-3">{banner.resMessage}</TableCell>
+                       
+                        <TableCell className="px-5 py-3">Done</TableCell>
+                  <TableCell className="px-4 py-3 text-theme-sm text-gray-500 dark:text-gray-400">
+                          <div className="flex items-center gap-2">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button className='bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-2 rounded'>
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <span>Delete</span>
+                              </TooltipContent>
+                            </Tooltip>
+                          </div>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

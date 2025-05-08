@@ -72,6 +72,7 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
     fetchDesigns();
   }, []);
 
+  
   return (
     <div>
       <PageBreadcrumb pageTitle="Category List" />
@@ -81,17 +82,17 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
             <div className="max-w-full overflow-x-auto">
               <div className="min-w-[920px]">
                 <Table>
-                  <TableHeader className="border-b border-gray-100 bg-[#ecf3ff] dark:border-white/[0.05]">
+                  <TableHeader className="border-b border-gray-100 bg-[#ecf3ff] dark:bg-[#101828] dark:border-white/[0.05]">
                     <TableRow>
-                      <TableCell isHeader className="px-5 py-3 text-[#465fff] text-start text-theme-lg">Heading</TableCell>
-                      <TableCell isHeader className="px-5 py-3 text-[#465fff] text-start text-theme-lg">Image Limit</TableCell>
-                      <TableCell isHeader className="px-5 py-3 text-[#465fff] text-start text-theme-lg">Per Slide</TableCell>
-                      <TableCell isHeader className="px-5 py-3 text-[#465fff] text-start text-theme-lg">Status</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-[#465fff] dark:text-[#fff] text-start text-theme-lg">Heading</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-[#465fff] dark:text-[#fff] text-start text-theme-lg">Image Limit</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-[#465fff] dark:text-[#fff] text-start text-theme-lg">Per Slide</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-[#465fff] dark:text-[#fff] text-start text-theme-lg">Status</TableCell>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {designs.map((item) => (
-                      <TableRow key={item.id}>
+                      <TableRow key={item.id} className='border-b border-blue-400 dark:border-white/[0.05]'>
                         <TableCell className="px-5 py-3">{item.heading || "Not Valid for this category"}</TableCell>
                         <TableCell className="px-5 py-3">{item.imglimit || "Not Valid for this category"}</TableCell>
                         <TableCell className="px-5 py-3">{item.perslideimage || "Not Valid for this category"}</TableCell>

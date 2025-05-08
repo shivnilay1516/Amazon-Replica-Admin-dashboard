@@ -63,6 +63,39 @@ const ShowPageSectionCategoryList = ({ showListAction }: any) => {
     fetchCategoryData();
   }, []);
 
+
+  const handleDelete = async (id: number) => {
+    const mutation = {
+      query: `
+        mutation DeleteHomeSectionCategory($deleteHomeSectionCategoryId: ID!) {
+          deleteHomeSectionCategory(id: $deleteHomeSectionCategoryId) {
+            resStatus
+            resMessage
+          }
+        }
+      `,
+      variables: {
+        deleteHomeSectionCategoryId: id,
+      },
+    };
+
+    try {
+      const response = await axiosInstance.post('/graphql', mutation);
+      const result = response.data?.data?.deleteHomeSectionCategory;
+
+      if (result?.resStatus === 'Success') {
+        toast.success(result.resMessage || 'Category deleted successfully');
+        setCategoryData((prev) => prev.filter((item) => item.id !== id));
+      } else {
+        toast.error(result?.resMessage || 'Failed to delete category');
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      toast.error('An error occurred while deleting the category.');
+    }
+  };
+
+
   
   return (
     <div>
@@ -73,25 +106,25 @@ const ShowPageSectionCategoryList = ({ showListAction }: any) => {
             <div className="max-w-full overflow-x-auto">
               <div className="min-w-[920px]">
                 <Table>
-                  <TableHeader className="border-b border-gray-100 bg-[#ecf3ff] dark:border-white/[0.05]">
+                  <TableHeader className="border-b border-gray-100 bg-[#ecf3ff] dark:bg-[#101828] dark:border-white/[0.05]">
                     <TableRow>
-                      <TableCell isHeader className="px-5 py-3 font-medium text-[#465fff] text-start text-theme-lg dark:text-gray-400">
+                      <TableCell isHeader className="px-5 py-3 font-medium text-[#465fff] dark:text-[#fff] text-start text-theme-lg dark:text-gray-400">
                         Category Name
                       </TableCell>
-                      <TableCell isHeader className="px-5 py-3 font-medium text-[#465fff] text-center text-theme-lg dark:text-gray-400">
+                      <TableCell isHeader className="px-5 py-3 font-medium text-[#465fff] dark:text-[#fff] text-center text-theme-lg dark:text-gray-400">
                         Image
                       </TableCell>
-                      <TableCell isHeader className="px-5 py-3 font-medium text-[#465fff] text-start text-theme-lg dark:text-gray-400">
+                      <TableCell isHeader className="px-5 py-3 font-medium text-[#465fff] dark:text-[#fff] text-start text-theme-lg dark:text-gray-400">
                         Status
                       </TableCell>
-                      <TableCell isHeader className="px-5 py-3 font-medium text-[#465fff] text-start text-theme-lg dark:text-gray-400">
+                      <TableCell isHeader className="px-5 py-3 font-medium text-[#465fff] dark:text-[#fff] text-start text-theme-lg dark:text-gray-400">
                         Action
                       </TableCell>
                     </TableRow>
                   </TableHeader>
                   <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                     {categoryData.map((order) => (
-                      <TableRow key={order.id} className='border-blue-400'>
+                      <TableRow key={order.id} className='border-blue-400 dark:border-white/[0.05]'>
                         <TableCell className="px-5 py-4 sm:px-6 text-start">
                           <div className="flex items-center gap-3">
                             <div>
@@ -117,8 +150,10 @@ const ShowPageSectionCategoryList = ({ showListAction }: any) => {
                           <div className="flex items-center gap-2">
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <button className='bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-2 rounded'>
-                                  <Trash2 className="w-4 h-4" />
+                                <button
+                                  onClick={() => handleDelete(order.id)}
+                                  className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-2 rounded"
+                                >  <Trash2 className="w-4 h-4" />
                                 </button>
                               </TooltipTrigger>
                               <TooltipContent>

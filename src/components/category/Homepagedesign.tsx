@@ -5,7 +5,8 @@ import ComponentCard from '../common/ComponentCard';
 import Label from '../form/Label';
 import FileInput from '../form/input/FileInput';
 import Button from '../ui/button/Button';
-import Select from 'react-select';
+// import Select from 'react-select';
+import Select from "../form/input/SelectWithImage"
 import Image from 'next/image';
 import axios from 'axios';
 import Input from '../form/input/InputField';
@@ -182,11 +183,195 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
     }));
   };
 
+  // const handleSubmitData = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+
+  //   const formDataToSubmit = new FormData();
+  //   const payload = {
+  //     query: `
+  //       mutation Column4addSectionDesign($hompagesectioncategoryId: Int, $heading: String, $rows: [RowInput]) {
+  //         column4addSectionDesign(
+  //           hompagesectioncategory_id: $hompagesectioncategoryId,
+  //           heading: $heading,
+  //           rows: $rows
+  //         ) {
+  //           id
+  //           hompagesectioncategory_id
+  //           advertisement
+  //           advertisement_link
+  //           heading
+  //           imglimit
+  //           perslideimage
+  //           content
+  //           status
+  //           resMessage
+  //           resStatus
+  //           createdIstAt
+  //           updatedIstAt
+  //         }
+  //       }
+  //     `,
+  //     variables: {
+  //       hompagesectioncategoryId: 1,
+  //       heading: formData['catgoryName'],
+  //       rows: [
+  //         {
+  //           columns: [
+  //             {
+  //               heading: formData['firstRowName'],
+  //               images: [
+  //                 {
+  //                   link: null,
+  //                   file: null
+  //                 },
+  //                 {
+  //                   link: null,
+  //                   file: null
+  //                 },
+  //                 {
+  //                   link: null,
+  //                   file: null
+  //                 },
+  //                 {
+  //                   link: null,
+  //                   file: null
+  //                 }
+  //               ]
+  //             },
+  //             {
+  //               heading: formData['secondrowname'],
+  //               images: [
+  //                 {
+  //                   link: null,
+  //                   file: null
+  //                 },
+  //                 {
+  //                   link: null,
+  //                   file: null
+  //                 },
+  //                 {
+  //                   link: null,
+  //                   file: null
+  //                 },
+  //                 {
+  //                   link: null,
+  //                   file: null
+  //                 }
+  //               ]
+  //             },
+  //             {
+  //               heading: formData['thirdrowname'],
+  //               images: [
+  //                 {
+  //                   link: null,
+  //                   file: null
+  //                 },
+  //                 {
+  //                   link: null,
+  //                   file: null
+  //                 },
+  //                 {
+  //                   link: null,
+  //                   file: null
+  //                 },
+  //                 {
+  //                   link: null,
+  //                   file: null
+  //                 }
+  //               ]
+  //             },
+  //             {
+  //               heading: formData['fourthrowname'],
+  //               images: [
+  //                 {
+  //                   link: null,
+  //                   file: null
+  //                 },
+  //                 {
+  //                   link: null,
+  //                   file: null
+  //                 },
+  //                 {
+  //                   link: null,
+  //                   file: null
+  //                 },
+  //                 {
+  //                   link: null,
+  //                   file: null
+  //                 }
+  //               ]
+  //             }
+  //           ],
+  //         },
+  //       ],
+  //     },
+  //   };
+
+  //   formDataToSubmit.append('operations', JSON.stringify(payload));
+  //   formDataToSubmit.append("map", "{\"0\":[\"variables.rows.0.columns.0.images.0.file\"],\"1\":[\"variables.rows.0.columns.0.images.1.file\"],\"2\":[\"variables.rows.0.columns.0.images.2.file\"],\"3\": [\"variables.rows.0.columns.0.images.3.file\"],\"4\": [\"variables.rows.0.columns.1.images.0.file\"],\"5\": [\"variables.rows.0.columns.1.images.1.file\"],\"6\": [\"variables.rows.0.columns.1.images.2.file\"],\"7\": [\"variables.rows.0.columns.1.images.3.file\"],\"8\": [\"variables.rows.0.columns.2.images.0.file\"],\"9\": [\"variables.rows.0.columns.2.images.1.file\"],\"10\": [\"variables.rows.0.columns.2.images.2.file\"],\"11\": [\"variables.rows.0.columns.2.images.3.file\"],\"12\": [\"variables.rows.0.columns.3.images.0.file\"],\"13\": [\"variables.rows.0.columns.3.images.1.file\"],\"14\": [\"variables.rows.0.columns.3.images.2.file\"],\"15\": [\"variables.rows.0.columns.3.images.3.file\"]}");
+  //   formDataToSubmit.append("map", "{\"link0\":[\"variables.rows.0.columns.0.images.0.link\"],\"link1\":[\"variables.rows.0.columns.0.images.1.link\"],\"link2\":[\"variables.rows.0.columns.0.images.2.link\"],\"link3\": [\"variables.rows.0.columns.0.images.3.link\"],\"link4\": [\"variables.rows.0.columns.1.images.0.link\"],\"link5\": [\"variables.rows.0.columns.1.images.1.link\"],\"link6\": [\"variables.rows.0.columns.1.images.2.link\"],\"link7\": [\"variables.rows.0.columns.1.images.3.link\"],\"link8\": [\"variables.rows.0.columns.2.images.0.link\"],\"link9\": [\"variables.rows.0.columns.2.images.1.link\"],\"link10\": [\"variables.rows.0.columns.2.images.2.link\"],\"link11\": [\"variables.rows.0.columns.2.images.3.link\"],\"link12\": [\"variables.rows.0.columns.3.images.0.link\"],\"link13\": [\"variables.rows.0.columns.3.images.1.link\"],\"link14\": [\"variables.rows.0.columns.3.images.2.link\"],\"link15\": [\"variables.rows.0.columns.3.images.3.link\"]}");
+  //   image.forEach((i: ImageContainer) => {
+  //     formDataToSubmit.append(`${i.index}`, i.file);
+  //     formDataToSubmit.append(`link${i.index}`, URL.createObjectURL(i.file));
+  //   })
+  //   console.log("dsds", payload.variables);
+    
+  //   console.log("formDataToSubmit__",formDataToSubmit);
+  //   // try {
+  //   //   const response = await axios.post(`${API_URL}/graphql`, formDataToSubmit, {
+  //   //     headers: { 'Content-Type': 'multipart/form-data' },
+  //   //   });
+  //   //   console.log('GraphQL Response:', response.data);
+  //   //   alert('Data submitted successfully!');
+  //   // } catch (error: any) {
+  //   //   console.error('Error:', error.response?.data || error.message);
+  //   //   alert('There was an error submitting the form.');
+  //   try {
+  //     const response = await axios.post(`${API_URL}/graphql`, formDataToSubmit, {
+  //       headers: { 'Content-Type': 'multipart/form-data' },
+  //     });
+    
+  //     const responseData = response.data as {
+  //       data?: { column4addSectionDesign: any };
+  //       errors?: { message: string }[];
+  //     };
+    
+  //     if (responseData.errors && responseData.errors.length > 0) {
+  //       const errorMessage = responseData.errors.map((err: any) => err.message).join('\n');
+  //       // alert(`GraphQL Error:\n${errorMessage}`);
+  //       alert(`Somthing wrong:\n${errorMessage}`);
+  //     } else if (!responseData.data || !responseData.data.column4addSectionDesign) {
+  //       alert('Submission failed: No data returned.');
+  //     } else {
+  //       alert('Data submitted successfully!');
+  //       console.log('GraphQL Response:', responseData);
+  //     }
+  //   } catch (error: any) {
+  //     console.error('Request Error:', error.response?.data || error.message);
+  //     alert('There was a network or server error submitting the form.');
+    
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
   const handleSubmitData = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
+  
+    // ✅ Filter only images with actual files
+    const uploadedImages = image.filter((img: ImageContainer) => img.file);
+  
+    // ✅ Validate image count
+    if (uploadedImages.length !== 4 && uploadedImages.length !== 15) {
+      alert("You must upload either exactly 4 images or all 16 images.");
+      setLoading(false);
+      return;
+    }
+  
     const formDataToSubmit = new FormData();
+  
     const payload = {
       query: `
         mutation Column4addSectionDesign($hompagesectioncategoryId: Int, $heading: String, $rows: [RowInput]) {
@@ -219,128 +404,57 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
             columns: [
               {
                 heading: formData['firstRowName'],
-                images: [
-                  {
-                    link: null,
-                    file: null
-                  },
-                  {
-                    link: null,
-                    file: null
-                  },
-                  {
-                    link: null,
-                    file: null
-                  },
-                  {
-                    link: null,
-                    file: null
-                  }
-                ]
+                images: Array(4).fill({ link: null, file: null }),
               },
               {
                 heading: formData['secondrowname'],
-                images: [
-                  {
-                    link: null,
-                    file: null
-                  },
-                  {
-                    link: null,
-                    file: null
-                  },
-                  {
-                    link: null,
-                    file: null
-                  },
-                  {
-                    link: null,
-                    file: null
-                  }
-                ]
+                images: Array(4).fill({ link: null, file: null }),
               },
               {
                 heading: formData['thirdrowname'],
-                images: [
-                  {
-                    link: null,
-                    file: null
-                  },
-                  {
-                    link: null,
-                    file: null
-                  },
-                  {
-                    link: null,
-                    file: null
-                  },
-                  {
-                    link: null,
-                    file: null
-                  }
-                ]
+                images: Array(4).fill({ link: null, file: null }),
               },
               {
                 heading: formData['fourthrowname'],
-                images: [
-                  {
-                    link: null,
-                    file: null
-                  },
-                  {
-                    link: null,
-                    file: null
-                  },
-                  {
-                    link: null,
-                    file: null
-                  },
-                  {
-                    link: null,
-                    file: null
-                  }
-                ]
-              }
+                images: Array(4).fill({ link: null, file: null }),
+              },
             ],
           },
         ],
       },
     };
-
+  
     formDataToSubmit.append('operations', JSON.stringify(payload));
-    formDataToSubmit.append("map", "{\"0\":[\"variables.rows.0.columns.0.images.0.file\"],\"1\":[\"variables.rows.0.columns.0.images.1.file\"],\"2\":[\"variables.rows.0.columns.0.images.2.file\"],\"3\": [\"variables.rows.0.columns.0.images.3.file\"],\"4\": [\"variables.rows.0.columns.1.images.0.file\"],\"5\": [\"variables.rows.0.columns.1.images.1.file\"],\"6\": [\"variables.rows.0.columns.1.images.2.file\"],\"7\": [\"variables.rows.0.columns.1.images.3.file\"],\"8\": [\"variables.rows.0.columns.2.images.0.file\"],\"9\": [\"variables.rows.0.columns.2.images.1.file\"],\"10\": [\"variables.rows.0.columns.2.images.2.file\"],\"11\": [\"variables.rows.0.columns.2.images.3.file\"],\"12\": [\"variables.rows.0.columns.3.images.0.file\"],\"13\": [\"variables.rows.0.columns.3.images.1.file\"],\"14\": [\"variables.rows.0.columns.3.images.2.file\"],\"15\": [\"variables.rows.0.columns.3.images.3.file\"]}");
-    formDataToSubmit.append("map", "{\"link0\":[\"variables.rows.0.columns.0.images.0.link\"],\"link1\":[\"variables.rows.0.columns.0.images.1.link\"],\"link2\":[\"variables.rows.0.columns.0.images.2.link\"],\"link3\": [\"variables.rows.0.columns.0.images.3.link\"],\"link4\": [\"variables.rows.0.columns.1.images.0.link\"],\"link5\": [\"variables.rows.0.columns.1.images.1.link\"],\"link6\": [\"variables.rows.0.columns.1.images.2.link\"],\"link7\": [\"variables.rows.0.columns.1.images.3.link\"],\"link8\": [\"variables.rows.0.columns.2.images.0.link\"],\"link9\": [\"variables.rows.0.columns.2.images.1.link\"],\"link10\": [\"variables.rows.0.columns.2.images.2.link\"],\"link11\": [\"variables.rows.0.columns.2.images.3.link\"],\"link12\": [\"variables.rows.0.columns.3.images.0.link\"],\"link13\": [\"variables.rows.0.columns.3.images.1.link\"],\"link14\": [\"variables.rows.0.columns.3.images.2.link\"],\"link15\": [\"variables.rows.0.columns.3.images.3.link\"]}");
-    image.forEach((i: ImageContainer) => {
-      formDataToSubmit.append(`${i.index}`, i.file);
-      formDataToSubmit.append(`link${i.index}`, URL.createObjectURL(i.file));
-    })
-    console.log("dsds", payload.variables);
-    
-    console.log("formDataToSubmit__",formDataToSubmit);
-    // try {
-    //   const response = await axios.post(`${API_URL}/graphql`, formDataToSubmit, {
-    //     headers: { 'Content-Type': 'multipart/form-data' },
-    //   });
-    //   console.log('GraphQL Response:', response.data);
-    //   alert('Data submitted successfully!');
-    // } catch (error: any) {
-    //   console.error('Error:', error.response?.data || error.message);
-    //   alert('There was an error submitting the form.');
+  
+    // ✅ Build a single map for file uploads
+    const fileMap: Record<string, string[]> = {};
+    uploadedImages.forEach((img: ImageContainer) => {
+      const colIndex = Math.floor(Number(img.index) / 4);
+      const imgIndex = Number(img.index) % 4;
+      fileMap[img.index] = [`variables.rows.0.columns.${colIndex}.images.${imgIndex}.file`];
+    });
+  
+    formDataToSubmit.append('map', JSON.stringify(fileMap));
+  
+    // ✅ Append the actual image files
+    uploadedImages.forEach((img: ImageContainer) => {
+      formDataToSubmit.append(img.index, img.file);
+    });
+  
     try {
       const response = await axios.post(`${API_URL}/graphql`, formDataToSubmit, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
-    
+  
       const responseData = response.data as {
         data?: { column4addSectionDesign: any };
         errors?: { message: string }[];
       };
-    
-      if (responseData.errors && responseData.errors.length > 0) {
-        const errorMessage = responseData.errors.map((err: any) => err.message).join('\n');
-        // alert(`GraphQL Error:\n${errorMessage}`);
-        alert(`Somthing wrong:\n${errorMessage}`);
-      } else if (!responseData.data || !responseData.data.column4addSectionDesign) {
+  
+      if (responseData.errors?.length) {
+        const errorMessage = responseData.errors.map(err => err.message).join('\n');
+        alert(`Something went wrong:\n${errorMessage}`);
+      } else if (!responseData.data?.column4addSectionDesign) {
         alert('Submission failed: No data returned.');
       } else {
         alert('Data submitted successfully!');
@@ -349,11 +463,11 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
     } catch (error: any) {
       console.error('Request Error:', error.response?.data || error.message);
       alert('There was a network or server error submitting the form.');
-    
     } finally {
       setLoading(false);
     }
   };
+  
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -705,7 +819,7 @@ type DropdownOption = {
         <div className="border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] py-4 px-5 rounded-2xl">
         <div className="space-y-6">
         <ComponentCard title="Section Category Section" isDropDownIcon={true} options={options}>
-          <form className="space-y-6 my-6">
+          <form className="space-y-6 mb-6">
             <Label>Select Category</Label>
             <Select
               options={selectOptions}
@@ -713,12 +827,16 @@ type DropdownOption = {
               placeholder="Select role"
               classNames={{
                 control: ({ isFocused }) =>
-                  `h-11 w-full rounded-lg border ${isFocused ? 'border-ring-brand-300' : 'border-gray-300'} bg-transparent text-sm text-gray-500 shadow-theme-xs transition-colors focus:outline-none`,
+                  `h-11 w-full rounded-lg border bg-white dark:bg-gray-800  ${isFocused ? 'border-ring-brand-300' : 'border-gray-300'} text-sm text-gray-500 shadow-theme-xs transition-colors focus:outline-none`,
                 placeholder: () => 'text-gray-400',
                 singleValue: () => 'text-gray-500',
                 menu: () => 'z-20',
               }}
             />
+
+            {/* <Select options={selectOptions}
+            onChange={handleChange}
+            placeholder="Select option" className='bg-white dark:bg-gray-900' /> */}
           </form>
           </ComponentCard>
           </div>
