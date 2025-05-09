@@ -364,6 +364,118 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
   //   }
   // };
 
+  // const handleSubmitData = async (e: React.FormEvent) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+  
+  //   // ✅ Filter only images with actual files
+  //   const uploadedImages = image.filter((img: ImageContainer) => img.file);
+  
+  //   // ✅ Validate image count
+  //   if (uploadedImages.length !== 4 && uploadedImages.length !== 15) {
+  //     alert("You must upload either exactly 4 images or all 16 images.");
+  //     setLoading(false);
+  //     return;
+  //   }
+  
+  //   const formDataToSubmit = new FormData();
+  
+  //   const payload = {
+  //     query: `
+  //       mutation Column4addSectionDesign($hompagesectioncategoryId: Int, $heading: String, $rows: [RowInput]) {
+  //         column4addSectionDesign(
+  //           hompagesectioncategory_id: $hompagesectioncategoryId,
+  //           heading: $heading,
+  //           rows: $rows
+  //         ) {
+  //           id
+  //           hompagesectioncategory_id
+  //           advertisement
+  //           advertisement_link
+  //           heading
+  //           imglimit
+  //           perslideimage
+  //           content
+  //           status
+  //           resMessage
+  //           resStatus
+  //           createdIstAt
+  //           updatedIstAt
+  //         }
+  //       }
+  //     `,
+  //     variables: {
+  //       hompagesectioncategoryId: 1,
+  //       heading: formData['catgoryName'],
+  //       rows: [
+  //         {
+  //           columns: [
+  //             {
+  //               heading: formData['firstRowName'],
+  //               images: Array(4).fill({ link: null, file: null }),
+  //             },
+  //             {
+  //               heading: formData['secondrowname'],
+  //               images: Array(4).fill({ link: null, file: null }),
+  //             },
+  //             {
+  //               heading: formData['thirdrowname'],
+  //               images: Array(4).fill({ link: null, file: null }),
+  //             },
+  //             {
+  //               heading: formData['fourthrowname'],
+  //               images: Array(4).fill({ link: null, file: null }),
+  //             },
+  //           ],
+  //         },
+  //       ],
+  //     },
+  //   };
+  
+  //   formDataToSubmit.append('operations', JSON.stringify(payload));
+  
+  //   // ✅ Build a single map for file uploads
+  //   const fileMap: Record<string, string[]> = {};
+  //   uploadedImages.forEach((img: ImageContainer) => {
+  //     const colIndex = Math.floor(Number(img.index) / 4);
+  //     const imgIndex = Number(img.index) % 4;
+  //     fileMap[img.index] = [`variables.rows.0.columns.${colIndex}.images.${imgIndex}.file`];
+  //   });
+  
+  //   formDataToSubmit.append('map', JSON.stringify(fileMap));
+  
+  //   // ✅ Append the actual image files
+  //   uploadedImages.forEach((img: ImageContainer) => {
+  //     formDataToSubmit.append(img.index, img.file);
+  //   });
+  
+  //   try {
+  //     const response = await axios.post(`${API_URL}/graphql`, formDataToSubmit, {
+  //       headers: { 'Content-Type': 'multipart/form-data' },
+  //     });
+  
+  //     const responseData = response.data as {
+  //       data?: { column4addSectionDesign: any };
+  //       errors?: { message: string }[];
+  //     };
+  
+  //     if (responseData.errors?.length) {
+  //       const errorMessage = responseData.errors.map(err => err.message).join('\n');
+  //       alert(`Something went wrong:\n${errorMessage}`);
+  //     } else if (!responseData.data?.column4addSectionDesign) {
+  //       alert('Submission failed: No data returned.');
+  //     } else {
+  //       alert('Data submitted successfully!');
+  //       console.log('GraphQL Response:', responseData);
+  //     }
+  //   } catch (error: any) {
+  //     console.error('Request Error:', error.response?.data || error.message);
+  //     alert('There was a network or server error submitting the form.');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+  
   const handleSubmitData = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -371,11 +483,46 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
     // ✅ Filter only images with actual files
     const uploadedImages = image.filter((img: ImageContainer) => img.file);
   
-    // ✅ Validate image count
-    if (uploadedImages.length !== 4 && uploadedImages.length !== 15) {
-      alert("You must upload either exactly 4 images or all 16 images.");
+    // ✅ Validate per-row image rules
+    const rowImages: { [key: number]: ImageContainer[] } = {};
+    uploadedImages.forEach((img: ImageContainer) => {
+      const rowIndex = Math.floor(Number(img.index) / 4);
+      if (!rowImages[rowIndex]) rowImages[rowIndex] = [];
+      rowImages[rowIndex].push(img);
+    });
+  
+    let fullRowCount = 0;
+    let isValid = true;
+  
+    for (let i = 0; i < 4; i++) {
+      const imagesInRow = rowImages[i] || [];
+  
+      if (![0, 1, 4].includes(imagesInRow.length)) {
+        alert(`Row ${i + 1} must have either 1 or 4 images. Currently has ${imagesInRow.length}.`);
+        isValid = false;
+        break;
+      }
+  
+      if (imagesInRow.length === 4) {
+        fullRowCount++;
+      }
+    }
+  
+    if (!isValid) {
       setLoading(false);
       return;
+    }
+  
+    // If any row has 4 images, others must have only 1 or 0
+    if (fullRowCount > 0) {
+      for (let i = 0; i < 4; i++) {
+        const imagesInRow = rowImages[i] || [];
+        if (![0, 1, 4].includes(imagesInRow.length)) {
+          alert(`Since one row has 4 images, Row ${i + 1} must have either 1 or 4 images.`);
+          setLoading(false);
+          return;
+        }
+      }
     }
   
     const formDataToSubmit = new FormData();
@@ -687,117 +834,115 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
         return match ? parseInt(match[0], 10) : -1;
   };
 
-const handlePresentationSubmitData = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoading(true);
+  const handlePresentationSubmitData = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
 
-  const presentationformDataToSubmit = new FormData();
-  const presentimageLength = parseInt(presentationformData['presentimageLength'], 10);
+    const presentationformDataToSubmit = new FormData();
+    const presentimageLength = parseInt(presentationformData['presentimageLength'], 10);
 
 
-  // Build images array with link only, files handled via map+FormData
-  const imagesArray = Array.from({ length: presentimageLength }, (_, i) => {
-    const path = (presentationformData as any)[`path-${i}`] || "";
-    const heading=(presentationformData as any)[`heading-${i}`]||"";
-    const title=(presentationformData as any)[`title-${i}`]||"";
+    // Build images array with link only, files handled via map+FormData
+    const imagesArray = Array.from({ length: presentimageLength }, (_, i) => {
+      const path = (presentationformData as any)[`path-${i}`] || "";
+      const heading=(presentationformData as any)[`heading-${i}`]||"";
+      const title=(presentationformData as any)[`title-${i}`]||"";
 
-    return {
-      link: path,
-      file: null,
-      heading: heading,
-      title: title
-    };
-  });
-  let advLink: any = ""
-  const advertisementFile: any = presentationformData['advertisementdata'];
-  if (advertisementFile instanceof File) {
-    advLink = URL.createObjectURL(advertisementFile);
-  } else {
-    advLink = "";
-    console.error("advertisementdata is not a File:", advertisementFile);
-  }
-
-  const payload = {
-    query: `
-     mutation AddSection($heading: String,$advertisement: Upload, $advertisementLink: String,$imglimit:String,$perslideimage:String, $rows: [RowInput], $hompagesectioncategoryId: Int) {
-      advertisementcarouseladdSectionDesign(heading: $heading,advertisement:$advertisement,advertisement_link:$advertisementLink,imglimit: $imglimit,perslideimage: $perslideimage, rows: $rows,hompagesectioncategory_id: $hompagesectioncategoryId) {
-        id
-        hompagesectioncategory_id
-        advertisement
-        advertisement_link
-        heading
-        imglimit
-        perslideimage
-        content
-        status
-        resMessage
-        resStatus
-        createdIstAt
-        updatedIstAt
-      }
-    }`
-    ,
-    variables: {
-      heading: presentationformData['presentationheading'],
-      hompagesectioncategoryId: 2,
-      imglimit: presentationformData['presentimageLength'],
-      advertisement: null,
-      advertisementLink: advLink,
-      perslideimage: presentationformData['presentationimagelength'],
-      rows: [
-        {
-          columns: [
-            {
-              images: imagesArray
-            }
-          ]
-        }
-      ]
+      return {
+        link: path,
+        file: null,
+        heading: heading,
+        title: title
+      };
+    });
+    let advLink: any = ""
+    const advertisementFile: any = presentationformData['advertisementdata'];
+    if (advertisementFile instanceof File) {
+      advLink = URL.createObjectURL(advertisementFile);
+    } else {
+      advLink = "";
+      console.error("advertisementdata is not a File:", advertisementFile);
     }
-  };
 
-  // Build GraphQL multipart map
-  const mapObj: Record<string, string[]> = {};
-  const mapLinkObj: Record<string, string[]> = {};
-
-  presentationimage.forEach((img: ImageContainer, idx:number) => {
-    mapObj[`${img.index}`] = [`variables.rows.0.columns.0.images.${img.index}.file`];
-    mapLinkObj[`link${img.index}`] = [`variables.rows.0.columns.0.images.${img.index}.link`];
-  });
-  mapObj[presentationimage.length] = [`variables.advertisement`];
-
-  presentationformDataToSubmit.append("operations", JSON.stringify(payload));
-  presentationformDataToSubmit.append("map", JSON.stringify(mapObj));
-  presentationformDataToSubmit.append("map", JSON.stringify(mapLinkObj));
-
-  presentationimage.forEach((img: ImageContainer) => {
-    presentationformDataToSubmit.append(`${img.index}`, img.file);
-    presentationformDataToSubmit.append(`link${img.index}`, URL.createObjectURL(img.file));
-  });
-
-  presentationformDataToSubmit.append(`${presentationimage.length}`, presentationformData['advertisementdata']);
-
-  console.log("`Payload`", payload.variables, presentationformData['advertisementdata'])
-  console.log("submit",presentationformDataToSubmit)
-
-  try {
-    const response = await axios.post(`${API_URL}/graphql`, presentationformDataToSubmit, {
-      headers: {
-        'Content-Type': 'multipart/form-data'
+    const payload = {
+      query: `
+      mutation AddSection($heading: String,$advertisement: Upload, $advertisementLink: String,$imglimit:String,$perslideimage:String, $rows: [RowInput], $hompagesectioncategoryId: Int) {
+        advertisementcarouseladdSectionDesign(heading: $heading,advertisement:$advertisement,advertisement_link:$advertisementLink,imglimit: $imglimit,perslideimage: $perslideimage, rows: $rows,hompagesectioncategory_id: $hompagesectioncategoryId) {
+          id
+          hompagesectioncategory_id
+          advertisement
+          advertisement_link
+          heading
+          imglimit
+          perslideimage
+          content
+          status
+          resMessage
+          resStatus
+          createdIstAt
+          updatedIstAt
+        }
+      }`
+      ,
+      variables: {
+        heading: presentationformData['presentationheading'],
+        hompagesectioncategoryId: 2,
+        imglimit: presentationformData['presentimageLength'],
+        advertisement: null,
+        advertisementLink: advLink,
+        perslideimage: presentationformData['presentationimagelength'],
+        rows: [
+          {
+            columns: [
+              {
+                images: imagesArray
+              }
+            ]
+          }
+        ]
       }
+    };
+
+    // Build GraphQL multipart map
+    const mapObj: Record<string, string[]> = {};
+    const mapLinkObj: Record<string, string[]> = {};
+
+    presentationimage.forEach((img: ImageContainer, idx:number) => {
+      mapObj[`${img.index}`] = [`variables.rows.0.columns.0.images.${img.index}.file`];
+      mapLinkObj[`link${img.index}`] = [`variables.rows.0.columns.0.images.${img.index}.link`];
+    });
+    mapObj[presentationimage.length] = [`variables.advertisement`];
+
+    presentationformDataToSubmit.append("operations", JSON.stringify(payload));
+    presentationformDataToSubmit.append("map", JSON.stringify(mapObj));
+    presentationformDataToSubmit.append("map", JSON.stringify(mapLinkObj));
+
+    presentationimage.forEach((img: ImageContainer) => {
+      presentationformDataToSubmit.append(`${img.index}`, img.file);
+      presentationformDataToSubmit.append(`link${img.index}`, URL.createObjectURL(img.file));
     });
 
-    console.log("GraphQL Response:", response.data);
-    alert("Data submitted successfully!");
-  } catch (error: any) {
-    console.error("Submission Error:", error.response?.data || error.message);
-    alert("There was an error submitting the form.");
-  } finally {
-    setLoading(false);
-  }
-};
+    presentationformDataToSubmit.append(`${presentationimage.length}`, presentationformData['advertisementdata']);
 
+    console.log("`Payload`", payload.variables, presentationformData['advertisementdata'])
+    console.log("submit",presentationformDataToSubmit)
 
+    try {
+      const response = await axios.post(`${API_URL}/graphql`, presentationformDataToSubmit, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      console.log("GraphQL Response:", response.data);
+      alert("Data submitted successfully!");
+    } catch (error: any) {
+      console.error("Submission Error:", error.response?.data || error.message);
+      alert("There was an error submitting the form.");
+    } finally {
+      setLoading(false);
+    }
+  };
 
 type DropdownOption = {
     label: string;
