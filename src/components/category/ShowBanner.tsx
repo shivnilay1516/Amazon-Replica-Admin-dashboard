@@ -21,7 +21,7 @@ interface Banner {
   resMessage: string;
 }
 
-const ShowBannerImages = ({ showListAction }: any) => {
+const ShowBannerImages = () => {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -45,28 +45,16 @@ const ShowBannerImages = ({ showListAction }: any) => {
           `,
         });
 
-        const responseData = response.data as {
-          data?: { getAllBanner: Banner[] };
-          errors?: { message: string }[];
-        };
+        const result = response.data?.data?.getAllBanner;
 
-        if (responseData.errors && responseData.errors.length > 0) {
-          const errorMessages = responseData.errors.map(err => err.message).join('\n');
-          alert(`GraphQL Error: ${errorMessages}`);
-          setBanners([]);
+        if (Array.isArray(result)) {
+          setBanners(result);
         } else {
-          const result = responseData?.data?.getAllBanner;
-          if (Array.isArray(result)) {
-            setBanners(result);
-          } else {
-           alert('Unexpected response format from server.');
-            setBanners([]);
-          }
+          alert('Unexpected response format.');
         }
       } catch (error) {
-        console.error('Network error:', error);
-        alert('Network error occurred while fetching banners.');
-        setBanners([]);
+        console.error('Fetch error:', error);
+        alert('Failed to fetch banners.');
       } finally {
         setLoading(false);
       }
@@ -74,6 +62,45 @@ const ShowBannerImages = ({ showListAction }: any) => {
 
     fetchBanners();
   }, []);
+
+  const handleDelete = async (id: string) => {
+    const confirmDelete = confirm('Are you sure you want to delete this banner?');
+    if (!confirmDelete) return;
+
+    // Optimistic UI update
+    const previousBanners = [...banners];
+    setBanners(prev => prev.filter(banner => String(banner.id) !== String(id)));
+
+    try {
+      const response = await axiosInstance.post('/graphql', {
+        query: `
+          mutation DeleteBanner($deleteBannerId: ID!) {
+            deleteBanner(id: $deleteBannerId) {
+              id
+              resStatus
+              resMessage
+            }
+          }
+        `,
+        variables: {
+          deleteBannerId: id,
+        },
+      });
+
+      const result = response.data?.data?.deleteBanner;
+
+      if (result?.resStatus !== 'SUCCESS') {
+        alert(result?.resMessage || 'Failed to delete.');
+        setBanners(previousBanners); // rollback
+      } else {
+        alert('Banner deleted successfully.');
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Error occurred while deleting.');
+      setBanners(previousBanners); // rollback
+    }
+  };
 
   return (
     <div>
@@ -86,10 +113,10 @@ const ShowBannerImages = ({ showListAction }: any) => {
                 <Table>
                   <TableHeader className="border-b border-gray-100 bg-[#ecf3ff] dark:bg-[#101828] dark:border-white/[0.05]">
                     <TableRow>
-                    <TableCell isHeader className="px-5 py-3 text-[#465fff] dark:text-[#fff] text-start text-theme-lg">Banner Link</TableCell>
-                      <TableCell isHeader className="px-5 py-3 text-[#465fff] dark:text-[#fff] text-center text-theme-lg">Banner Image</TableCell>
-                      <TableCell isHeader className="px-5 py-3 text-[#465fff] dark:text-[#fff] text-start text-theme-lg">Status</TableCell>
-                      <TableCell isHeader className="px-5 py-3 text-[#465fff] dark:text-[#fff] text-start text-theme-lg">Action</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-[#465fff] text-start text-theme-lg">Banner Name</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-[#465fff] text-center text-theme-lg">Banner Image</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-[#465fff] text-start text-theme-lg">Status</TableCell>
+                      <TableCell isHeader className="px-5 py-3 text-[#465fff] text-start text-theme-lg">Action</TableCell>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -108,19 +135,20 @@ const ShowBannerImages = ({ showListAction }: any) => {
                       </TableRow>
                     )}
                     {!loading && banners.map((banner) => (
-                      <TableRow key={banner.id} className='border-b border-blue-400 dark:border-white/[0.05]'>
-                         <TableCell className="px-5 py-3">{banner.bannerlink}</TableCell>
+                      <TableRow key={banner.id} className="border-b border-blue-400 dark:border-white/[0.05]">
+                        <TableCell className="px-5 py-3">{banner.bannerlink}</TableCell>
                         <TableCell className="px-5 py-3">
-                          {/* <img src={banner.bannerimage} alt="Banner" className="w-32 h-auto rounded-md" /> */}
-                           <Image src={`${API_URL}${banner.bannerimage}`} alt="category img" width={600} height={170}  className='w-full h-40 object-cover' />
+                          <Image src={`${API_URL}${banner.bannerimage}`} alt="banner" width={600} height={170} className="w-full h-40 object-cover" />
                         </TableCell>
-                       
                         <TableCell className="px-5 py-3">Done</TableCell>
-                  <TableCell className="px-4 py-3 text-theme-sm text-gray-500 dark:text-gray-400">
+                        <TableCell className="px-4 py-3 text-theme-sm text-gray-500">
                           <div className="flex items-center gap-2">
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <button className='bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-2 rounded'>
+                                <button
+                                  onClick={() => handleDelete(banner.id)}
+                                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-2 rounded"
+                                >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
                               </TooltipTrigger>

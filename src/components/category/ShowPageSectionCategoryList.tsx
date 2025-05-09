@@ -99,7 +99,7 @@ const ShowPageSectionCategoryList = ({ showListAction }: any) => {
   
   return (
     <div>
-      <PageBreadcrumb pageTitle="Category List" />
+      <PageBreadcrumb pageTitle="Section Category List" />
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-1">
         <div className="space-y-6">
           <div className="overflow-hidden rounded-xl border border-blue-400 bg-white dark:border-white/[0.05] dark:bg-white/[0.03]">

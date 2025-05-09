@@ -141,9 +141,10 @@ const Banner = ({ showListAction }: sectioncategoryprops) => {
         <ComponentCard title={previewUrl ? "Preview Image" : "Default Image"}>
         <Image
           width={500}
-          height={800}
+          height={300}
           src={previewUrl || categoryImg}
           alt="Selected Preview"
+          className='w-full'
         />
         </ComponentCard>
         </div>

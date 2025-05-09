@@ -5,8 +5,7 @@ import ComponentCard from '../common/ComponentCard';
 import Label from '../form/Label';
 import FileInput from '../form/input/FileInput';
 import Button from '../ui/button/Button';
-// import Select from 'react-select';
-import Select from "../form/input/SelectWithImage"
+import Select from 'react-select';
 import Image from 'next/image';
 import axios from 'axios';
 import Input from '../form/input/InputField';
@@ -115,6 +114,15 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
   const dummy_img = '/images/carousel/carousel-02.png';
   const API_URL = 'https://cc4a-103-206-131-194.ngrok-free.app';
   // const API_URL = 'https://amazonreplica.onrender.com';
+
+  useEffect(() => {
+    // This prevents "unused variable" warning
+    void setImageLength;
+  }, []);
+  useEffect(() => {
+    // This prevents "unused variable" warning
+    void setPresentimageLength;
+  }, []);
 
 // Api for Select option
 
@@ -833,32 +841,30 @@ type DropdownOption = {
                 menu: () => 'z-20',
               }}
             />
-
-            {/* <Select options={selectOptions}
-            onChange={handleChange}
-            placeholder="Select option" className='bg-white dark:bg-gray-900' /> */}
           </form>
           </ComponentCard>
           </div>
-          <form onSubmit={handleSubmitData} action=" " className='space-y-6' style={{ display: selectCategory=== "4 columns" ? 'block' : 'none' }} >
+
+          <form onSubmit={handleSubmitData} action=" " className='space-y-6 mt-4' style={{ display: selectCategory=== "4 columns" ? 'block' : 'none' }} >
               <Label>Category Name</Label>
               <Input
                 type="text" 
                 name='catgoryName'
+                placeholder='Enter main category name'
                 onChange={handleChangeData}
               />
               <div className='flex flex-wrap'>
-                <div className='w-1/2 mb-4'>
+                <div className='w-full mb-4 border border-blue-400 p-2 rounded'>
                   <div className='px-1.5'>
-                  <Label>First row Name</Label>
+                  <Label>First Row Name</Label>
                   <Input
                     type="text"
-                  
+                  placeholder='Enter first row name'
                     name='firstRowName'
                     onChange={handleChangeData}
                   />
                   <div className=''>
-                    <div className='my-2'>
+                    <div className='my-2 flex items-center gap-2'>
                     <Input
                     type="text"
                     placeholder='Enter the path'
@@ -871,7 +877,7 @@ type DropdownOption = {
                         name="firstrowfirstImage"
                       />
                     </div>
-                    <div className='my-2'>
+                    <div className='my-2 flex items-center gap-2'>
                     <Input
                     type="text"
                     placeholder='Enter the path'
@@ -885,7 +891,7 @@ type DropdownOption = {
                         name="firstrowsecondImage"
                       />
                     </div>
-                    <div className='my-2'>
+                    <div className='my-2 flex items-center gap-2'>
                     <Input
                     type="text"
                     placeholder='Enter the path'
@@ -899,7 +905,7 @@ type DropdownOption = {
                         name="firstrowthirdImage"
                       />
                     </div>
-                    <div className='my-2'>
+                    <div className='my-2 flex items-center gap-2'>
                     <Input
                     type="text"
                     placeholder='Enter the path'
@@ -916,17 +922,17 @@ type DropdownOption = {
                   </div>
                   </div>
                 </div>
-                <div className='w-1/2 mb-4'>
+                <div className='w-full mb-4 border border-blue-400 p-2 rounded'>
                   <div className='px-1.5'>
-                  <Label>Second row Name</Label>
+                  <Label>Second Row Name</Label>
                   <Input
                     type="text"
-                    
+                    placeholder='Enter second row name'
                     name="secondrowname"
                     onChange={handleChangeData}
                   />
                   <div className=''>
-                    <div className='my-2'>
+                    <div className='my-2 flex items-center gap-2'>
                     <Input
                     type="text"
                     placeholder='Enter the path'
@@ -940,7 +946,7 @@ type DropdownOption = {
                         name='secondrowfirstimage'
                       />
                     </div>
-                    <div className='my-2'>
+                    <div className='my-2 flex items-center gap-2'>
                     <Input
                     type="text"
                     placeholder='Enter the path'
@@ -954,7 +960,7 @@ type DropdownOption = {
                         name='secondrowsecondimage'
                       />
                     </div>
-                    <div className='my-2'>
+                    <div className='my-2 flex items-center gap-2'>
                     <Input
                     type="text"
                     placeholder='Enter the path'
@@ -968,7 +974,7 @@ type DropdownOption = {
                         name='secondrowthirdimage'
                       />
                     </div>
-                    <div className='my-2'>
+                    <div className='my-2 flex items-center gap-2'>
                     <Input
                     type="text"
                     placeholder='Enter the path'
@@ -985,17 +991,17 @@ type DropdownOption = {
                   </div>
                   </div>
                 </div>
-                <div className='w-1/2 mb-4'>
+                <div className='w-full mb-4 border border-blue-400 p-2 rounded'>
                   <div className='px-1.5'>
-                  <Label>First row Name</Label>
+                  <Label>Third Row Name</Label>
                   <Input
                     type="text"
                     name="thirdrowname"
-                    
+                    placeholder='Enter third row name'
                   onChange={handleChangeData}
                   />
                   <div className=''>
-                    <div className='my-2'>
+                    <div className='my-2 flex items-center gap-2'>
                     <Input
                     type="text"
                     placeholder='Enter the path'
@@ -1009,7 +1015,7 @@ type DropdownOption = {
                         name='thirdrowfirstimage'
                       />
                     </div>
-                    <div className='my-2'>
+                    <div className='my-2 flex items-center gap-2'>
                     <Input
                     type="text"
                     placeholder='Enter the path'
@@ -1022,7 +1028,7 @@ type DropdownOption = {
                         name='thirdrowSecondimage'
                       />
                     </div>
-                    <div className='my-2'>
+                    <div className='my-2 flex items-center gap-2'>
                     <Input
                     type="text"
                     placeholder='Enter the path'
@@ -1035,7 +1041,7 @@ type DropdownOption = {
                         name='thirdrowthirdimage'
                       />
                     </div>
-                    <div className='my-2'>
+                    <div className='my-2 flex items-center gap-2'>
                     <Input
                     type="text"
                     placeholder='Enter the path'
@@ -1051,16 +1057,17 @@ type DropdownOption = {
                   </div>
                   </div>
                 </div>
-                <div className='w-1/2 mb-4'>
+                <div className='w-full mb-4 border border-blue-400 p-2 rounded'>
                   <div className='px-1.5'>
-                  <Label>First row Name</Label>
+                  <Label>Fourth Row Name</Label>
                   <Input
                     type="text"
                     name="fourthrowname"
+                    placeholder='Enter fourth row name'
                   onChange={handleChangeData}
                   />
                   <div className=''>
-                    <div className='my-2'>
+                    <div className='my-2 flex items-center gap-2'>
                     <Input
                     type="text"
                     placeholder='Enter the path'
@@ -1073,7 +1080,7 @@ type DropdownOption = {
                         name='fourthrowfirstimage'
                       />
                     </div>
-                    <div className='my-2'>
+                    <div className='my-2 flex items-center gap-2'>
                     <Input
                     type="text"
                     placeholder='Enter the path'
@@ -1086,7 +1093,7 @@ type DropdownOption = {
                         name='fourthrowsecondimage'
                       />
                     </div>
-                    <div className='my-2'>
+                    <div className='my-2 flex items-center gap-2'>
                     <Input
                     type="text"
                     placeholder='Enter the path'
@@ -1099,7 +1106,7 @@ type DropdownOption = {
                         name='fourthrowthirdimage'
                       />
                     </div>
-                    <div className='my-2'>
+                    <div className='my-2 flex items-center gap-2'>
                     <Input
                     type="text"
                     placeholder='Enter the path'
@@ -1123,8 +1130,8 @@ type DropdownOption = {
               </div>
           </form>
 
-          <form onSubmit={handleCrouselSubmitData} action=" " className='space-y-6' style={{ display: selectCategory=== "carousel" ? 'block' : 'none' }} >
-                 <div className='flex flex-col'>
+          <form onSubmit={handleCrouselSubmitData} action=" " className='space-y-6 mt-4' style={{ display: selectCategory=== "carousel" ? 'block' : 'none' }} >
+                 <div className='flex flex-col border border-blue-400 p-2 rounded'>
                         <Input
                           type="text"
                           placeholder='Enter section heading'
@@ -1167,8 +1174,8 @@ type DropdownOption = {
               </div>
           </form>
 
-          <form onSubmit={handlePresentationSubmitData} action=" " className='space-y-6' style={{ display: selectCategory=== "advertisement with carousel" ? 'block' : 'none' }} >
-              <div className='flex flex-col'>
+          <form onSubmit={handlePresentationSubmitData} action=" " className='space-y-6 mt-4' style={{ display: selectCategory=== "advertisement with carousel" ? 'block' : 'none' }} >
+              <div className='flex flex-col border border-blue-400 p-2 rounded'>
                         <Input
                           type="text"
                           placeholder='Enter section heading'
@@ -1230,7 +1237,7 @@ type DropdownOption = {
 
           </div>
           <div className='border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] py-4 px-5 rounded-2xl'>
-            <img src={selectedImage ? selectedImage : dummy_img} alt="Selected Image" className='py-3 w-full' />
+            <Image src={selectedImage ? selectedImage : dummy_img} alt="Selected Image" width={500} height={400} className='py-3 w-full' />
           </div>
         </div>
       </div>
