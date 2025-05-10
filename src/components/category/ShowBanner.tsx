@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from '../ui/table';
-import { Trash2 } from 'lucide-react';
+import { Trash2,Pencil } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import Image from 'next/image';
 
@@ -147,13 +147,28 @@ const ShowBannerImages = () => {
                               <TooltipTrigger asChild>
                                 <button
                                   onClick={() => handleDelete(banner.id)}
-                                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-2 rounded"
+                                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 px-1.5 rounded"
                                 >
-                                  <Trash2 className="w-4 h-4" />
+                                  <Trash2 className="w-3 h-3" />
                                 </button>
+                                
                               </TooltipTrigger>
                               <TooltipContent>
                                 <span>Delete</span>
+                              </TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
+                                  // onClick={() => handleDelete(banner.id)}
+                                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 px-2 rounded"
+                                >
+                                  <Pencil className="w-3 h-3" />
+                                </button>
+                                
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <span>Update</span>
                               </TooltipContent>
                             </Tooltip>
                           </div>

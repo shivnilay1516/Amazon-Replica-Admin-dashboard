@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import axiosInstance from '@/lib/config/axiosInstance';
 import { Table, TableBody, TableCell, TableHeader, TableRow } from '../ui/table';
 import Badge from '../ui/badge/Badge';
-import { View, Trash2 } from 'lucide-react';
+import { Trash2, Pencil } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipTrigger } from '../ui/tooltip';
 import Image from 'next/image';
 
@@ -16,11 +16,15 @@ interface Order {
   status: string;
 }
 
-console.log(View)
-
 const ShowPageSectionCategoryList = ({ showListAction }: any) => {
   const [categoryData, setCategoryData] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
+  const [editingItem, setEditingItem] = useState<Order | null>(null);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [newImage, setNewImage] = useState<File | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false); // Add loading state for update
+  const [isDeleting, setIsDeleting] = useState(false); // Add loading state for delete
+
   const API_URL = 'https://cc4a-103-206-131-194.ngrok-free.app';
 
   useEffect(() => {
@@ -28,17 +32,15 @@ const ShowPageSectionCategoryList = ({ showListAction }: any) => {
       setLoading(true);
       try {
         const query = {
-          query: `
-            query GetHomeSectionCategory {
-              getHomeSectionCategory {
-                id
-                categoryname
-                categoryimage
-                resMessage
-                resStatus
-              }
+          query: `query GetHomeSectionCategory {
+            getHomeSectionCategory {
+              id
+              categoryname
+              categoryimage
+              resMessage
+              resStatus
             }
-          `,
+          }`,
         };
 
         const response = await axiosInstance.post('/graphql', query);
@@ -63,8 +65,8 @@ const ShowPageSectionCategoryList = ({ showListAction }: any) => {
     fetchCategoryData();
   }, []);
 
-
   const handleDelete = async (id: number) => {
+    setIsDeleting(true); // Start deleting state
     const mutation = {
       query: `
         mutation DeleteHomeSectionCategory($deleteHomeSectionCategoryId: ID!) {
@@ -92,11 +94,109 @@ const ShowPageSectionCategoryList = ({ showListAction }: any) => {
     } catch (error) {
       console.error('Delete error:', error);
       toast.error('An error occurred while deleting the category.');
+    } finally {
+      setIsDeleting(false); // Stop deleting state
     }
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setNewImage(file);
+    }
+  };
 
+  const handleUpdate = async () => {
+    if (!editingItem) return;
   
+    if (!newCategoryName && !newImage) {
+      toast.error("Please update at least one field.");
+      return;
+    }
+  
+    const formData = new FormData();
+  
+    // Build the variables object dynamically
+    const variables = {
+      updateHomeSectionCategoryId: editingItem.id,
+    };
+  
+    if (newCategoryName && newCategoryName !== editingItem.categoryName) {
+      variables.categoryname = newCategoryName;
+    }
+  
+    if (newImage) {
+      variables.categoryimage = null; // Placeholder for file mapping
+    }
+  
+    formData.append('operations', JSON.stringify({
+      query: `
+        mutation UpdateHomeSectionCategory(
+          $updateHomeSectionCategoryId: ID!,
+          $categoryname: String,
+          $categoryimage: Upload
+        ) {
+          updateHomeSectionCategory(
+            id: $updateHomeSectionCategoryId,
+            categoryname: $categoryname,
+            categoryimage: $categoryimage
+          ) {
+            id
+            categoryname
+            categoryimage
+            resMessage
+            resStatus
+          }
+        }
+      `,
+      variables,
+    }));
+  
+    if (newImage) {
+      formData.append('map', JSON.stringify({ "0": ["variables.categoryimage"] }));
+      formData.append('0', newImage);
+    }
+  
+    setIsUpdating(true);
+  
+    try {
+      const response = await axiosInstance.post('/graphql', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+  
+      const result = response?.data?.data?.updateHomeSectionCategory;
+  
+      if (result?.resStatus === 'Success') {
+        toast.success(result.resMessage || 'Category updated successfully');
+  
+        setCategoryData((prev) =>
+          prev.map((item) =>
+            item.id === editingItem.id
+              ? {
+                  ...item,
+                  categoryName: result.categoryname || item.categoryName,
+                  Description: result.categoryimage || item.Description,
+                }
+              : item
+          )
+        );
+        setEditingItem(null);
+      } else {
+        toast.error(result?.resMessage || 'Failed to update category');
+      }
+    } catch (error) {
+      console.error('Update error:', error);
+      toast.error('An error occurred while updating the category.');
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+  
+  
+
+
   return (
     <div>
       <PageBreadcrumb pageTitle="Section Category List" />
@@ -124,7 +224,7 @@ const ShowPageSectionCategoryList = ({ showListAction }: any) => {
                   </TableHeader>
                   <TableBody className="divide-y divide-gray-100 dark:divide-white/[0.05]">
                     {categoryData.map((order) => (
-                      <TableRow key={order.id} className='border-blue-400 dark:border-white/[0.05]'>
+                      <TableRow key={order.id} className="border-blue-400 dark:border-white/[0.05]">
                         <TableCell className="px-5 py-4 sm:px-6 text-start">
                           <div className="flex items-center gap-3">
                             <div>
@@ -134,26 +234,39 @@ const ShowPageSectionCategoryList = ({ showListAction }: any) => {
                             </div>
                           </div>
                         </TableCell>
-                          <TableCell className="px-4 py-3 text-theme-sm text-gray-500 dark:text-gray-400">
-                            <div className="flex items-center gap-2">
-                           <Image src={`${API_URL}${order.Description}`} alt="category img" width={600} height={170}  className='w-full h-40 object-cover' />
-                            </div>
-                          </TableCell>
-                           
+                        <TableCell className="px-4 py-3 text-theme-sm text-gray-500 dark:text-gray-400">
+                          <div className="flex items-center gap-2">
+                            <Image src={`${API_URL}${order.Description}`} alt="category img" width={600} height={170} className="w-full h-40 object-cover" />
+                          </div>
+                        </TableCell>
                         <TableCell className="px-4 py-3 text-start text-theme-sm text-gray-500 dark:text-gray-400">
-                          <Badge
-                          >
-                            Done
-                          </Badge>
+                          <Badge>Done</Badge>
                         </TableCell>
                         <TableCell className="px-4 py-3 text-theme-sm text-gray-500 dark:text-gray-400">
                           <div className="flex items-center gap-2">
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <button
+                                  onClick={() => {
+                                    setEditingItem(order);
+                                    setNewCategoryName(order.categoryName);
+                                  }}
+                                  className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 px-1.5 rounded ml-2"
+                                >
+                                  <Pencil className="w-3 h-3" />
+                                </button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <span>Update</span>
+                              </TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <button
                                   onClick={() => handleDelete(order.id)}
-                                  className="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-2 rounded"
-                                >  <Trash2 className="w-4 h-4" />
+                                  className="bg-red-600 hover:bg-red-700 text-white font-bold py-1.5 px-1.5 rounded"
+                                >
+                                  <Trash2 className="w-3 h-3" />
                                 </button>
                               </TooltipTrigger>
                               <TooltipContent>
@@ -178,6 +291,68 @@ const ShowPageSectionCategoryList = ({ showListAction }: any) => {
           </div>
         </div>
       </div>
+
+      {editingItem && (
+  <div className="p-4 border border-blue-400 rounded-2xl mt-4">
+    <h2 className="mb-3 font-semibold text-lg">Update Category</h2>
+
+    <div className="flex flex-wrap gap-4 items-start">
+      <div className="flex flex-col gap-1">
+        <label className="text-sm text-gray-600">Category Name</label>
+        <input
+          type="text"
+          value={newCategoryName}
+          onChange={(e) => setNewCategoryName(e.target.value)}
+          placeholder="Category Name"
+          className="border border-blue-300 p-2 rounded min-w-[200px]"
+        />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="text-sm text-gray-600">Upload Image</label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={handleFileChange}
+          className="border border-blue-300 p-2 rounded"
+        />
+      </div>
+
+      {editingItem.categoryimage && !newImage && (
+        <div className="flex flex-col gap-1">
+          <label className="text-sm text-gray-600">Current Image</label>
+          <img
+            src={editingItem.categoryimage}
+            alt="Current"
+            className="w-24 h-24 object-cover border rounded"
+          />
+        </div>
+      )}
+
+      {newImage && (
+        <div className="flex flex-col gap-1">
+          <label className="text-sm text-gray-600">New Preview</label>
+          <img
+            src={URL.createObjectURL(newImage)}
+            alt="Preview"
+            className="w-24 h-24 object-cover border rounded"
+          />
+        </div>
+      )}
+
+      <div className="mt-auto">
+        <button
+          onClick={handleUpdate}
+          disabled={isUpdating}
+          className="bg-blue-700 text-white px-4 py-2 rounded hover:bg-blue-800"
+        >
+          {isUpdating ? 'Saving...' : 'Save Changes'}
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };
