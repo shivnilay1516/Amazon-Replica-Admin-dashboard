@@ -184,11 +184,35 @@ const HeaderFooterSetting = () => {
     { value: "Inactive", label: "Inactive" },
   ];
 
+  
+  // type DropdownOption = {
+  //   label: string;
+  //   action: () => void;
+  // };
+
+  // const options: DropdownOption[] = [
+  //   {
+  //     label: "Setting Page",
+  //     action: () => {
+  //       console.log("view more home page");
+  //       showListAction();
+  //     },
+  //   },
+  //   {
+  //     label: "Refresh",
+  //     action: () => {
+  //       console.log("Refresh clicked");
+  //     },
+  //   },
+  // ];
+
   return (
     <div>
       <PageBreadcrumb pageTitle="Home Page Settings" />
       <div className="grid grid-cols-1 gap-6">
         <ComponentCard title="Home Page Setting">
+        {/* <div className="space-y-6"> */}
+        {/* <ComponentCard title="Header/Footer Setting" isDropDownIcon={true} options={options}> */}
           <form onSubmit={handleSubmit}>
             <div className="flex flex-wrap justify-between">
               {/* Header and Footer Color Pickers */}

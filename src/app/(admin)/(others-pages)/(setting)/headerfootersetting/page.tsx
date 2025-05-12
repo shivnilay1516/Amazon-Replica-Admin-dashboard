@@ -1,4 +1,4 @@
-import SignUpForm from "@/components/auth/SignUpForm";
+// import SignUpForm from "@/components/auth/SignUpForm";
 import HomePageSetting from "@/components/setting/headerfootersetting";
 import { Metadata } from "next";
 
