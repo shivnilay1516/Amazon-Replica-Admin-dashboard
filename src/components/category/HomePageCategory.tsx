@@ -298,6 +298,7 @@ import {
   TableRow,
 } from '../ui/table';
 import {View, Trash2, Pencil } from 'lucide-react';
+import Image from 'next/image';
 import { toast } from 'react-toastify';
 
 interface SectionDesign {
@@ -323,6 +324,8 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<SectionDesign | null>(null);
   const [formData, setFormData] = useState<Partial<SectionDesign>>({});
+
+  const API_URL = 'https://cc4a-103-206-131-194.ngrok-free.app';
 
   useEffect(() => {
     const fetchDesigns = async () => {
@@ -535,12 +538,12 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
                         <TableCell className="px-5 py-3">{item.perslideimage || 'Not Valid'}</TableCell>
                         <TableCell className="px-5 py-3">{item.status || 'Not Valid'}</TableCell>
                         <TableCell className="px-5 py-3">
-                           <button
-                            // onClick={() => handleUpdateClick(item)}
+                           {/* <button
+                            onClick={() => handleView(item)}
                             className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 px-1.5 rounded"
                           >
                             <View className="w-3 h-3" />
-                          </button>
+                          </button> */}
                           <button
                             onClick={() => handleDelete(item.id)}
                             className={`bg-red-600 hover:bg-red-700 text-white font-bold py-1.5 px-1.5 rounded ml-2 ${deletingId === item.id ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -572,40 +575,175 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
         </div>
       </div>
 
-      {editingItem && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg w-[400px]">
-            <h2 className="text-lg font-bold mb-4">Edit Section</h2>
-            {['heading', 'imglimit', 'perslideimage', 'status'].map((field) => (
-              <div key={field} className="mb-3">
-                <label className="block text-sm font-medium text-gray-700 capitalize mb-1">{field}</label>
-                <input
-                  type="text"
-                  className="w-full border px-3 py-2 rounded"
-                  value={(formData as any)[field] || ''}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, [field]: e.target.value }))
+{editingItem && (
+  <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center">
+    <div className="bg-white p-6 rounded-lg w-[400px] h-[600px] overflow-y-auto">
+     <div className='flex justify-between mb-4 text-center'>
+     <h2 className="text-lg font-bold">Edit Section</h2>
+     <button onClick={() => setEditingItem(null)} className='cursor-pointer p-[3px] rounded border'>X</button>
+     </div>
+      {Object.entries(formData).map(([field, value]) => (
+        <div key={field} className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 capitalize mb-2">
+            {field}
+          </label>
+
+          {field === 'advertisement' && (
+  <div className="mb-6">
+    {value ? (
+      <div className="space-y-2">
+        <img
+          src={`${API_URL}${value}`}
+          alt="Advertisement"
+          className="w-full h-40 object-cover rounded mb-2"
+        />
+      </div>
+    ) : (
+      <p className="text-gray-400">No image available</p>
+    )}
+  </div>
+)}
+
+
+          {/* {field === 'content' && typeof value === 'object' && value !== null ? (
+            <div className="space-y-4">
+              {value.rows.map((row: any, rowIndex: number) => (
+                <div key={rowIndex} className="space-y-2">
+                  {row.columns.map((column: any, colIndex: number) => (
+                    <div key={colIndex} className="p-3 border rounded bg-gray-50">
+                      <p className="font-semibold mb-2">{column.heading}</p>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        {column.images.map((img: any, imgIndex: number) =>
+                          img.url ? (
+                            <div key={imgIndex} className="text-xs text-center">
+                              <img
+                                src={`${API_URL}${img.url}`}
+                                alt={`img-${imgIndex}`}
+                                className="w-full h-24 object-cover rounded mb-1"
+                              />
+                              <p className="break-all text-gray-600 text-xs">{`${API_URL}${img.url}`}</p>
+                            </div>
+                          ) : null
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <input
+              type="text"
+              className="w-full border px-3 py-2 rounded"
+              value={typeof value === 'object' && value !== null ? JSON.stringify(value, null, 2) : value ?? ''}
+              onChange={(e) => {
+                let newValue: any = e.target.value;
+                if (typeof value === 'number') {
+                  newValue = Number(e.target.value);
+                } else if (typeof value === 'object' && value !== null) {
+                  try {
+                    newValue = JSON.parse(e.target.value);
+                  } catch {
+                    // keep as string if JSON is invalid
                   }
-                />
-              </div>
-            ))}
-            <div className="flex justify-end gap-2 mt-4">
-              <button
-                onClick={() => setEditingItem(null)}
-                className="bg-gray-300 text-black px-4 py-2 rounded"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleUpdateSubmit}
-                className="bg-blue-600 text-white px-4 py-2 rounded"
-              >
-                Save
-              </button>
+                }
+                setFormData((prev) => ({ ...prev, [field]: newValue }));
+              }}
+            />
+          )} */}
+
+{field === 'content' && typeof value === 'object' && value !== null ? (
+  <div className="space-y-4">
+    {value.rows.map((row: any, rowIndex: number) => (
+      <div key={rowIndex} className="space-y-2">
+        {row.columns.map((column: any, colIndex: number) => (
+          <div key={colIndex} className="p-3 border rounded bg-gray-50">
+            <p className="font-semibold mb-2">{column.heading}</p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {column.images.map((img: any, imgIndex: number) =>
+                img.url ? (
+                  <div key={imgIndex} className="text-xs text-center w-full">
+                    {/* If link is present, wrap the image in an anchor tag */}
+                    {img.link ? (
+                      // <a href={img.link} target="_blank" rel="noopener noreferrer">
+                        <Image
+                          src={`${API_URL}${img.url}`}
+                          alt={`img-${imgIndex}`}
+                          height={200}
+                          width={200}
+                          className="w-full h-24 object-cover rounded mb-1"
+                        />
+                      // </a>
+                    ) : (
+                      <Image
+                        src={`${API_URL}${img.url}`}
+                        alt={`img-${imgIndex}`}
+                        width={200}
+                        height={200}
+                        className="w-full h-24 object-cover rounded mb-1"
+                      />
+                    )}
+
+                    {img.link && (
+                      <p className="text-blue-600 text-xs mt-1">
+                        <a href={img.link} target="_blank" rel="noopener noreferrer">
+                          {img.link}
+                        </a>
+                      </p>
+                    )}
+                  </div>
+                ) : null
+              )}
             </div>
           </div>
+        ))}
+      </div>
+    ))}
+  </div>
+) : (
+  <input
+    type="text"
+    className="w-full border px-3 py-2 rounded"
+    value={typeof value === 'object' && value !== null ? JSON.stringify(value, null, 2) : value ?? ''}
+    onChange={(e) => {
+      let newValue: any = e.target.value;
+      if (typeof value === 'number') {
+        newValue = Number(e.target.value);
+      } else if (typeof value === 'object' && value !== null) {
+        try {
+          newValue = JSON.parse(e.target.value);
+        } catch {
+          // keep as string if JSON is invalid
+        }
+      }
+      setFormData((prev) => ({ ...prev, [field]: newValue }));
+    }}
+  />
+)}
+
         </div>
-      )}
+      ))}
+
+      <div className="flex justify-end gap-2 mt-4">
+        <button
+          onClick={() => setEditingItem(null)}
+          className="bg-gray-300 text-black px-4 py-2 rounded"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleUpdateSubmit}
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
+
+
     </div>
   );
 };
