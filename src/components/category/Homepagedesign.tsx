@@ -111,7 +111,7 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
   const[validCount, setValidCount]=useState(0);
 
   const dummy_img = '/images/carousel/carousel-02.png';
-  const API_URL = 'https://cc4a-103-206-131-194.ngrok-free.app';
+  const API_URL = 'https://0a35-103-206-131-194.ngrok-free.app';
 
   // const API_URL = 'https://amazonreplica.onrender.com';
 

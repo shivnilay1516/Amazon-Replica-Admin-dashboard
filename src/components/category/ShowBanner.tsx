@@ -25,7 +25,7 @@ const ShowBannerImages = () => {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(false);
 
-  const API_URL = 'https://cc4a-103-206-131-194.ngrok-free.app';
+  const API_URL = 'https://0a35-103-206-131-194.ngrok-free.app';
 
   useEffect(() => {
     const fetchBanners = async () => {

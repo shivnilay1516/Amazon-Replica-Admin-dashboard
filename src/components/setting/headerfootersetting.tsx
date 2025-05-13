@@ -83,7 +83,7 @@ const HeaderFooterSetting = () => {
     formData.append("1", footerLogo);
   
     try {
-      const response = await fetch("https://cc4a-103-206-131-194.ngrok-free.app/graphql", {
+      const response = await fetch("https://0a35-103-206-131-194.ngrok-free.app/graphql", {
         method: "POST",
         body: formData,
       });
@@ -161,7 +161,7 @@ const HeaderFooterSetting = () => {
     updateFormData.append("1", footerLogo!);
   
     try {
-      const response = await fetch("https://cc4a-103-206-131-194.ngrok-free.app/graphql", {
+      const response = await fetch("https://0a35-103-206-131-194.ngrok-free.app/graphql", {
         method: "POST",
         body: updateFormData,
       });

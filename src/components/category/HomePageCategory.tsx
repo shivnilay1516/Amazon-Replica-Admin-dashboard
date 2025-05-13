@@ -37,7 +37,9 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
   const [editingItem, setEditingItem] = useState<SectionDesign | null>(null);
   const [formData, setFormData] = useState<Partial<SectionDesign>>({});
 
-  const API_URL = 'https://cc4a-103-206-131-194.ngrok-free.app';
+  const API_URL = 'https://0a35-103-206-131-194.ngrok-free.app';
+
+  console.log("formData",formData)
 
   useEffect(() => {
     const fetchDesigns = async () => {
@@ -147,45 +149,130 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
     setFormData({ ...item });
   };
 
+  const handleImageChange = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    rowIndex: number,
+    colIndex: number,
+    imgIndex: number
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const preview = URL.createObjectURL(file);
+  
+    const updatedContent = { ...formData.content };
+    const image = updatedContent.rows[rowIndex].columns[colIndex].images[imgIndex];
+  
+    // Show preview while uploading
+    image.url = preview;
+    image.file = file; // temporarily store the file if needed
+    setFormData(prev => ({ ...prev, content: updatedContent }));
+  
+    // Upload image
+    const formDataUpload = new FormData();
+    formDataUpload.append("file", file);
+  
+    try {
+      const res = await axiosInstance.post("/upload-endpoint", formDataUpload);
+      const uploadedUrl = res.data?.url;
+  
+      if (uploadedUrl) {
+        image.url = uploadedUrl;
+        delete image.file;
+        setFormData(prev => ({ ...prev, content: updatedContent }));
+      } else {
+        toast.error("Image upload failed: No URL returned");
+      }
+    } catch (err) {
+      toast.error("Image upload failed");
+      console.error(err);
+    }
+  };
+
   const handleUpdateSubmit = async () => {
     if (!editingItem) return;
+  
+    const updatedFormData = { ...formData };
+  
+    // Upload advertisement image if blob
+    if (updatedFormData.advertisement?.startsWith('blob:')) {
+      const fileInput = document.querySelector('input[type="file"][accept="image/*"]') as HTMLInputElement;
+      const file = fileInput?.files?.[0];
+      if (file) {
+        const formDataUpload = new FormData();
+        formDataUpload.append('file', file);
+        try {
+          const res = await axiosInstance.post('/upload-endpoint', formDataUpload);
+          updatedFormData.advertisement = res.data.url;
+        } catch (err) {
+          toast.error('Advertisement image upload failed');
+          return;
+        }
+      }
+    }
+  
+    // Upload any remaining blob images in content (fallback, in case user skipped file input handler)
+    if (updatedFormData.content?.rows) {
+      for (const row of updatedFormData.content.rows) {
+        for (const col of row.columns) {
+          for (const img of col.images) {
+            if (img.url?.startsWith('blob:') && img.file) {
+              const formDataUpload = new FormData();
+              formDataUpload.append('file', img.file);
+              try {
+                const res = await axiosInstance.post('/upload-endpoint', formDataUpload);
+                img.url = res.data.url;
+                delete img.file;
+              } catch (err) {
+                toast.error('One or more image uploads failed');
+                return;
+              }
+            }
+          }
+        }
+      }
+    }
+  
+    // Detect only changed fields
     const changedFields: any = {};
-
-    Object.keys(formData).forEach((key) => {
-      const originalValue = (editingItem as any)[key];
-      const newValue = (formData as any)[key];
-      if (originalValue !== newValue) {
+    Object.keys(updatedFormData).forEach(key => {
+      const originalValue = editingItem[key];
+      const newValue = updatedFormData[key];
+      if (JSON.stringify(originalValue) !== JSON.stringify(newValue)) {
         changedFields[key] = newValue;
       }
     });
-
+  
     if (Object.keys(changedFields).length === 0) {
       toast.info('No changes detected.');
       return;
     }
-
+  
+    // Submit update mutation
     try {
       const response = await axiosInstance.post('/graphql', {
         query: `
           mutation UpdateCarousel(
             $updatecarouselSectionDesignId: ID!
+            $hompagesectioncategoryId: Int
+            $sectionplaceid: String
             $heading: String
+            $rows: [RowInput]
             $imglimit: String
             $perslideimage: String
             $status: String
           ) {
             updatecarouselSectionDesign(
               id: $updatecarouselSectionDesignId
+              hompagesectioncategory_id: $hompagesectioncategoryId
+              sectionplaceid: $sectionplaceid
               heading: $heading
+              rows: $rows
               imglimit: $imglimit
               perslideimage: $perslideimage
               status: $status
             ) {
               id
-              heading
-              imglimit
-              perslideimage
-              status
               resMessage
               resStatus
             }
@@ -193,12 +280,18 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
         `,
         variables: {
           updatecarouselSectionDesignId: editingItem.id,
-          ...changedFields,
-        },
+          hompagesectioncategoryId: changedFields.hompagesectioncategory_id,
+          sectionplaceid: changedFields.sectionplaceid,
+          heading: changedFields.heading,
+          rows: changedFields.content?.rows,
+          imglimit: changedFields.imglimit,
+          perslideimage: changedFields.perslideimage,
+          status: changedFields.status,
+        }
       });
-
+  
       const res = response.data?.data?.updatecarouselSectionDesign;
-
+  
       if (res?.resStatus === 'success') {
         toast.success(res.resMessage || 'Updated successfully');
         setDesigns(prev =>
@@ -209,13 +302,13 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
       } else {
         toast.error(res?.resMessage || 'Update failed');
       }
-
     } catch (error) {
       console.error('Update Error:', error);
       toast.error('Something went wrong while updating');
     }
   };
   
+
   return (
     <div>
       <PageBreadcrumb pageTitle="Home Page Section List" />
@@ -280,7 +373,7 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
           </div>
         </div>
       </div>
-      {editingItem && (
+      {/* {editingItem && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center">
           <div className="bg-white p-6 rounded-lg w-[400px] h-[600px] overflow-y-auto">
           <div className='flex justify-between mb-4 text-center'>
@@ -292,44 +385,42 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
                 <label className="block text-sm font-medium text-gray-700 capitalize mb-2">
                   {field}
                 </label>
+            {field === 'advertisement' && (
+              <div className="mb-6">
 
-        {field === 'advertisement' && (
-          <div className="mb-6">
+                {formData.advertisement ? (
+                  <div className="space-y-2">
+                    <Image
+                      src={
+                        formData.advertisement.startsWith('blob:')
+                          ? formData.advertisement
+                          : `${API_URL}${formData.advertisement}`
+                      }
+                      width={200}
+                      height={200}
+                      alt="Advertisement"
+                      className="w-full h-40 object-cover rounded mb-2"
+                    />
+                  </div>
+                ) : (
+                  <p className="text-gray-400 mb-2">No image available</p>
+                )}
 
-            {formData.advertisement ? (
-              <div className="space-y-2">
-                <Image
-                  src={
-                    formData.advertisement.startsWith('blob:')
-                      ? formData.advertisement
-                      : `${API_URL}${formData.advertisement}`
-                  }
-                  width={200}
-                  height={200}
-                  alt="Advertisement"
-                  className="w-full h-40 object-cover rounded mb-2"
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={async (e) => {
+                    const file = e.target.files?.[0];
+                    if (!file) return;
+                    const preview = URL.createObjectURL(file);
+                    setFormData((prev) => ({
+                      ...prev,
+                      advertisement: preview,
+                    }));
+                  }}
                 />
               </div>
-            ) : (
-              <p className="text-gray-400 mb-2">No image available</p>
             )}
-
-            <input
-              type="file"
-              accept="image/*"
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (!file) return;
-                const preview = URL.createObjectURL(file);
-                setFormData((prev) => ({
-                  ...prev,
-                  advertisement: preview,
-                }));
-              }}
-            />
-          </div>
-        )}
-
             {field === 'content' && typeof value === 'object' && value !== null ? (
               <div className="space-y-4">
                 {value.rows.map((row: any, rowIndex: number) => (
@@ -338,37 +429,50 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
                       <div key={colIndex} className="p-3 border rounded bg-gray-50">
                         <p className="font-semibold mb-2">{column.heading}</p>
                         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                          {column.images.map((img: any, imgIndex: number) =>
-                            img.url ? (
-                              <div key={imgIndex} className="text-xs text-center w-full">
-                                {img.link ? (
-                                    <Image
-                                      src={`${API_URL}${img.url}`}
-                                      alt={`img-${imgIndex}`}
-                                      height={200}
-                                      width={200}
-                                      className="w-full h-24 object-cover rounded mb-1"
-                                    />
-
-                                    
-                                ) : (
-                                  <Image
-                                    src={`${API_URL}${img.url}`}
-                                    alt={`img-${imgIndex}`}
-                                    width={200}
-                                    height={200}
-                                    className="w-full h-24 object-cover rounded mb-1"
-                                  />
-                                )}
-
-                                {img.link && (
-                                  <p className="text-blue-600 text-xs mt-1">
-                                      {img.link}
-                                  </p>
-                                )}
-                              </div>
-                            ) : null
-                          )}
+                          {column.images.map((img:string, imgIndex: number) => {
+                            console.log("img",img)
+                            return(
+                          img?.url && 
+                          <div key={imgIndex} className="text-xs text-center w-full flex flex-col">
+                            <Image
+                            src={img?.url?.startsWith('blob:') ? img?.url : img?.url ? `${API_URL}${img?.url}` : ""}
+                              alt={`img-${imgIndex}`}
+                              width={200}
+                              height={200}
+                              className="w-full h-24 object-cover rounded mb-1"
+                            />
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                const preview = URL.createObjectURL(file);
+                                const updatedContent = { ...formData.content };
+                                updatedContent.rows[rowIndex].columns[colIndex].images[imgIndex].url = preview;
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  content: updatedContent,
+                                }));
+                              }}
+                              className="mt-1 text-xs"
+                            />
+                            <input
+                              type="text"
+                              value={img.link || ''}
+                              placeholder="Enter link"
+                              onChange={(e) => {
+                                const updatedContent = { ...formData.content };
+                                updatedContent.rows[rowIndex].columns[colIndex].images[imgIndex].link = e.target.value;
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  content: updatedContent,
+                                }));
+                              }}
+                              className="mt-2 w-full border px-2 py-1 rounded text-xs"
+                            />
+                          </div>
+                          )})}
                         </div>
                       </div>
                     ))}
@@ -414,7 +518,135 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
+
+{editingItem && (
+  <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center">
+    <div className="bg-white p-6 rounded-lg w-[400px] h-[600px] overflow-y-auto">
+      <div className='flex justify-between mb-4 text-center'>
+        <h2 className="text-lg font-bold">Edit Section</h2>
+        <button onClick={() => setEditingItem(null)} className='cursor-pointer p-[3px] rounded border'>X</button>
+      </div>
+
+      {Object.entries(formData).map(([field, value]) => (
+        <div key={field} className="mb-6">
+          <label className="block text-sm font-medium text-gray-700 capitalize mb-2">
+            {field}
+          </label>
+
+          {field === 'advertisement' ? (
+            <>
+              {value ? (
+                <Image
+                  src={value.startsWith('blob:') ? value : `${API_URL}${value}`}
+                  width={200}
+                  height={200}
+                  alt="Advertisement"
+                  className="w-full h-40 object-cover rounded mb-2"
+                />
+              ) : (
+                <p className="text-gray-400 mb-2">No image available</p>
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const preview = URL.createObjectURL(file);
+                  setFormData(prev => ({ ...prev, advertisement: preview }));
+                }}
+              />
+            </>
+          ) : field === 'content' && typeof value === 'object' && value !== null ? (
+            <div className="space-y-4">
+              {value.rows.map((row: any, rowIndex: number) => (
+                <div key={rowIndex} className="space-y-2">
+                  {row.columns.map((column: any, colIndex: number) => (
+                    <div key={colIndex} className="p-3 border rounded bg-gray-50">
+                      <p className="font-semibold mb-2">{column.heading}</p>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        {column.images.map((img: any, imgIndex: number) => (
+                          <div key={imgIndex} className="text-xs text-center w-full flex flex-col">
+                            <Image
+                              src={
+                                img.url?.startsWith('blob:')
+                                  ? img.url
+                                  : img.url
+                                  ? `${API_URL}${img.url}`
+                                  : ''
+                              }
+                              alt={`img-${imgIndex}`}
+                              width={200}
+                              height={200}
+                              className="w-full h-24 object-cover rounded mb-1"
+                            />
+                          <input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleImageChange(e, rowIndex, colIndex, imgIndex)}
+                              className="mt-1 text-xs"
+                            />
+                            <input
+                              type="text"
+                              value={img.link || ''}
+                              placeholder="Enter link"
+                              onChange={(e) => {
+                                const updatedContent = { ...formData.content };
+                                updatedContent.rows[rowIndex].columns[colIndex].images[imgIndex].link = e.target.value;
+                                setFormData(prev => ({ ...prev, content: updatedContent }));
+                              }}
+                              className="mt-2 w-full border px-2 py-1 rounded text-xs"
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <input
+              type="text"
+              className="w-full border px-3 py-2 rounded"
+              value={typeof value === 'object' && value !== null ? JSON.stringify(value, null, 2) : value ?? ''}
+              onChange={(e) => {
+                let newValue: any = e.target.value;
+                if (typeof value === 'number') {
+                  newValue = Number(newValue);
+                } else if (typeof value === 'object' && value !== null) {
+                  try {
+                    newValue = JSON.parse(newValue);
+                  } catch {
+                    // leave as is
+                  }
+                }
+                setFormData(prev => ({ ...prev, [field]: newValue }));
+              }}
+            />
+          )}
+        </div>
+      ))}
+
+      <div className="flex justify-end gap-2 mt-4">
+        <button
+          onClick={() => setEditingItem(null)}
+          className="bg-gray-300 text-black px-4 py-2 rounded"
+        >
+          Cancel
+        </button>
+        <button
+          onClick={handleUpdateSubmit}
+          className="bg-blue-600 text-white px-4 py-2 rounded"
+        >
+          Save
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };
