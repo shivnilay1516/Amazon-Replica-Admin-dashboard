@@ -36,10 +36,9 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [editingItem, setEditingItem] = useState<SectionDesign | null>(null);
   const [formData, setFormData] = useState<Partial<SectionDesign>>({});
-
+  void showHomeListAction;
   const API_URL = 'https://0a35-103-206-131-194.ngrok-free.app';
 
-  console.log("formData",formData)
 
   useEffect(() => {
     const fetchDesigns = async () => {
@@ -157,37 +156,50 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
   ) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
-    const preview = URL.createObjectURL(file);
   
-    const updatedContent = { ...formData.content };
+    // Step 1: Show temporary preview
+    const previewUrl = URL.createObjectURL(file);
+  
+    const updatedContent = structuredClone(formData.content);
     const image = updatedContent.rows[rowIndex].columns[colIndex].images[imgIndex];
+    image.url = previewUrl;
   
-    // Show preview while uploading
-    image.url = preview;
-    image.file = file; // temporarily store the file if needed
     setFormData(prev => ({ ...prev, content: updatedContent }));
   
-    // Upload image
+    // Step 2: Upload to backend
     const formDataUpload = new FormData();
     formDataUpload.append("file", file);
   
     try {
-      const res = await axiosInstance.post("/upload-endpoint", formDataUpload);
+      const res = await axiosInstance.post("https://0a35-103-206-131-194.ngrok-free.app/graphql", formDataUpload, {
+        headers: {
+          "Content-Type": "multipart/form-data"
+        }
+      });
+  
       const uploadedUrl = res.data?.url;
   
       if (uploadedUrl) {
-        image.url = uploadedUrl;
-        delete image.file;
-        setFormData(prev => ({ ...prev, content: updatedContent }));
+        // ✅ Replace preview URL with actual uploaded URL
+        const freshContent = structuredClone(formData.content);
+        const finalImage = freshContent.rows[rowIndex].columns[colIndex].images[imgIndex];
+        finalImage.url = uploadedUrl;
+  
+        setFormData(prev => ({ ...prev, content: freshContent }));
+        toast.success("Image uploaded successfully");
       } else {
-        toast.error("Image upload failed: No URL returned");
+        toast.error("Upload failed: No URL returned from server");
       }
     } catch (err) {
+      console.error("Upload error:", err);
       toast.error("Image upload failed");
-      console.error(err);
     }
   };
+  
+  
+  
+  
+  
 
   const handleUpdateSubmit = async () => {
     if (!editingItem) return;
@@ -202,7 +214,7 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
         const formDataUpload = new FormData();
         formDataUpload.append('file', file);
         try {
-          const res = await axiosInstance.post('/upload-endpoint', formDataUpload);
+          const res = await axiosInstance.post('/graphql', formDataUpload);
           updatedFormData.advertisement = res.data.url;
         } catch (err) {
           toast.error('Advertisement image upload failed');
@@ -220,7 +232,7 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
               const formDataUpload = new FormData();
               formDataUpload.append('file', img.file);
               try {
-                const res = await axiosInstance.post('/upload-endpoint', formDataUpload);
+                const res = await axiosInstance.post('/graphql', formDataUpload);
                 img.url = res.data.url;
                 delete img.file;
               } catch (err) {
@@ -373,153 +385,6 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
           </div>
         </div>
       </div>
-      {/* {editingItem && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center">
-          <div className="bg-white p-6 rounded-lg w-[400px] h-[600px] overflow-y-auto">
-          <div className='flex justify-between mb-4 text-center'>
-          <h2 className="text-lg font-bold">Edit Section</h2>
-          <button onClick={() => setEditingItem(null)} className='cursor-pointer p-[3px] rounded border'>X</button>
-          </div>
-            {Object.entries(formData).map(([field, value]) => (
-              <div key={field} className="mb-6">
-                <label className="block text-sm font-medium text-gray-700 capitalize mb-2">
-                  {field}
-                </label>
-            {field === 'advertisement' && (
-              <div className="mb-6">
-
-                {formData.advertisement ? (
-                  <div className="space-y-2">
-                    <Image
-                      src={
-                        formData.advertisement.startsWith('blob:')
-                          ? formData.advertisement
-                          : `${API_URL}${formData.advertisement}`
-                      }
-                      width={200}
-                      height={200}
-                      alt="Advertisement"
-                      className="w-full h-40 object-cover rounded mb-2"
-                    />
-                  </div>
-                ) : (
-                  <p className="text-gray-400 mb-2">No image available</p>
-                )}
-
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={async (e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    const preview = URL.createObjectURL(file);
-                    setFormData((prev) => ({
-                      ...prev,
-                      advertisement: preview,
-                    }));
-                  }}
-                />
-              </div>
-            )}
-            {field === 'content' && typeof value === 'object' && value !== null ? (
-              <div className="space-y-4">
-                {value.rows.map((row: any, rowIndex: number) => (
-                  <div key={rowIndex} className="space-y-2">
-                    {row.columns.map((column: any, colIndex: number) => (
-                      <div key={colIndex} className="p-3 border rounded bg-gray-50">
-                        <p className="font-semibold mb-2">{column.heading}</p>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                          {column.images.map((img:string, imgIndex: number) => {
-                            console.log("img",img)
-                            return(
-                          img?.url && 
-                          <div key={imgIndex} className="text-xs text-center w-full flex flex-col">
-                            <Image
-                            src={img?.url?.startsWith('blob:') ? img?.url : img?.url ? `${API_URL}${img?.url}` : ""}
-                              alt={`img-${imgIndex}`}
-                              width={200}
-                              height={200}
-                              className="w-full h-24 object-cover rounded mb-1"
-                            />
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (!file) return;
-                                const preview = URL.createObjectURL(file);
-                                const updatedContent = { ...formData.content };
-                                updatedContent.rows[rowIndex].columns[colIndex].images[imgIndex].url = preview;
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  content: updatedContent,
-                                }));
-                              }}
-                              className="mt-1 text-xs"
-                            />
-                            <input
-                              type="text"
-                              value={img.link || ''}
-                              placeholder="Enter link"
-                              onChange={(e) => {
-                                const updatedContent = { ...formData.content };
-                                updatedContent.rows[rowIndex].columns[colIndex].images[imgIndex].link = e.target.value;
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  content: updatedContent,
-                                }));
-                              }}
-                              className="mt-2 w-full border px-2 py-1 rounded text-xs"
-                            />
-                          </div>
-                          )})}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <input
-                type="text"
-                className="w-full border px-3 py-2 rounded"
-                value={typeof value === 'object' && value !== null ? JSON.stringify(value, null, 2) : value ?? ''}
-                onChange={(e) => {
-                  let newValue: any = e.target.value;
-                  if (typeof value === 'number') {
-                    newValue = Number(e.target.value);
-                  } else if (typeof value === 'object' && value !== null) {
-                    try {
-                      newValue = JSON.parse(e.target.value);
-                    } catch {
-                      // keep as string if JSON is invalid
-                    }
-                  }
-                  setFormData((prev) => ({ ...prev, [field]: newValue }));
-                }}
-              />
-            )}
-              </div>
-            ))}
-
-            <div className="flex justify-end gap-2 mt-4">
-              <button
-                onClick={() => setEditingItem(null)}
-                className="bg-gray-300 text-black px-4 py-2 rounded"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleUpdateSubmit}
-                className="bg-blue-600 text-white px-4 py-2 rounded"
-              >
-                Save
-              </button>
-            </div>
-          </div>
-        </div>
-      )} */}
-
 {editingItem && (
   <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center">
     <div className="bg-white p-6 rounded-lg w-[400px] h-[600px] overflow-y-auto">
@@ -646,7 +511,6 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
     </div>
   </div>
 )}
-
     </div>
   );
 };

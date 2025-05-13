@@ -14,9 +14,13 @@ interface Order {
   categoryName: string;
   Description: string;
   status: string;
+  categoryimage?: string;
 }
+type Props = {
+  showListAction: () => void; 
+};
 
-const ShowPageSectionCategoryList = ({ showListAction }: any) => {
+const ShowPageSectionCategoryList = ({ showListAction }: Props) => {
   const [categoryData, setCategoryData] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingItem, setEditingItem] = useState<Order | null>(null);
@@ -24,7 +28,7 @@ const ShowPageSectionCategoryList = ({ showListAction }: any) => {
   const [newImage, setNewImage] = useState<File | null>(null);
   const [isUpdating, setIsUpdating] = useState(false); // Add loading state for update
   const [isDeleting, setIsDeleting] = useState(false); // Add loading state for delete
-
+  void showListAction;
   const API_URL = 'https://0a35-103-206-131-194.ngrok-free.app';
 
   useEffect(() => {
@@ -65,6 +69,7 @@ const ShowPageSectionCategoryList = ({ showListAction }: any) => {
     fetchCategoryData();
   }, []);
 
+
   const handleDelete = async (id: number) => {
     setIsDeleting(true); // Start deleting state
     const mutation = {
@@ -98,8 +103,9 @@ const ShowPageSectionCategoryList = ({ showListAction }: any) => {
       setIsDeleting(false); // Stop deleting state
     }
   };
+  console.log("isDeleting",isDeleting)
 
-  const handleFileChange = (e) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setNewImage(file);
@@ -321,9 +327,11 @@ const ShowPageSectionCategoryList = ({ showListAction }: any) => {
       {editingItem.categoryimage && !newImage && (
         <div className="flex flex-col gap-1">
           <label className="text-sm text-gray-600">Current Image</label>
-          <img
+          <Image
             src={editingItem.categoryimage}
             alt="Current"
+            width={200}
+            height={200}
             className="w-24 h-24 object-cover border rounded"
           />
         </div>
@@ -332,9 +340,11 @@ const ShowPageSectionCategoryList = ({ showListAction }: any) => {
       {newImage && (
         <div className="flex flex-col gap-1">
           <label className="text-sm text-gray-600">New Preview</label>
-          <img
+          <Image
             src={URL.createObjectURL(newImage)}
             alt="Preview"
+            width={200}
+            height={200}
             className="w-24 h-24 object-cover border rounded"
           />
         </div>

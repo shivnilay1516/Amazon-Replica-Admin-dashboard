@@ -17,6 +17,11 @@ interface OptionType {
   image: string;
   category: string;
 }
+interface CarouselSectionDesign {
+  id: string;
+  name: string;
+  imageUrl: string;
+}
 interface ImageContainer {
   index: number;
   file: File;
@@ -490,7 +495,7 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
       });
   
       const resData = response.data as {
-        data?: { carouseladdSectionDesign: any };
+        data?: { carouseladdSectionDesign: CarouselSectionDesign };
         errors?: { message: string }[];
       };
   

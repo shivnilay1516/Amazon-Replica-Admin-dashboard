@@ -8,7 +8,7 @@ export default function SignUp() {
 
   const showBannerListAction = () => {
     setShowList((prev) => {
-      // console.log("Toggling showList from", prev, "to", !prev);
+      console.log("Toggling showList from", prev, "to", !prev);
       return !prev;
     });
   };
