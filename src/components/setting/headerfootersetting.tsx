@@ -9,8 +9,11 @@ import Button from "../ui/button/Button";
 import { toast } from "react-toastify";
 import Select from "../form/Select";
 
+interface sectioncategoryprops{
+  showHeaderFooterAction:()=> void;
+}
 
-const HeaderFooterSetting = () => {
+const HeaderFooterSetting = ({ showHeaderFooterAction }: sectioncategoryprops) => {
   const [headerbgcolor, setHeaderBgColor] = useState("#ffffff");
   const [headercolor, setHeaderColor] = useState("#000000");
   const [footertopbgcolor, setFooterTopBgColor] = useState("#ffffff");
@@ -35,149 +38,76 @@ const HeaderFooterSetting = () => {
   
     setLoading(true);
   
-    const createOperations = {
-      query: `
-        mutation AddHomePageSetting($input: HomePageSettingInput!) {
-          addHomePageSetting(input: $input) {
-            id
-            headerbgcolor
-            headercolor
-            footertopbgcolor
-            footertopcolor
-            footertopstatus
-            footerbgcolor
-            footercolor
-            footerstatus
-            headerlogo
-            footerlogo
-            resStatus
-            resMessage
-          }
-        }
-      `,
-      variables: {
-        input: {
-          headerbgcolor,
-          headercolor,
-          footertopbgcolor,
-          footertopcolor,
-          footertopstatus,
-          footerbgcolor: footerbgcolor ?? "#ffffff",
-          footercolor,
-          footerstatus,
-          headerlogo: null,
-          footerlogo: null,
-        },
-      },
-    };
-  
-    const map = {
-      "0": ["variables.input.headerlogo"],
-      "1": ["variables.input.footerlogo"],
-    };
-  
-    const formData = new FormData();
-    formData.append("operations", JSON.stringify(createOperations));
-    formData.append("map", JSON.stringify(map));
-    formData.append("0", headerLogo);
-    formData.append("1", footerLogo);
-  
     try {
+      const operations = {
+        query: `
+          mutation AddHomePageSetting($input: HomePageSettingInput!) {
+            addHomePageSetting(input: $input) {
+              id
+              headerbgcolor
+              headercolor
+              footertopbgcolor
+              footertopcolor
+              footertopstatus
+              footerbgcolor
+              footercolor
+              footerstatus
+              headerlogo
+              footerlogo
+              resStatus
+              resMessage
+            }
+          }
+        `,
+        variables: {
+          input: {
+            headerbgcolor,
+            headercolor,
+            footertopbgcolor,
+            footertopcolor,
+            footertopstatus,
+            footerbgcolor: footerbgcolor ?? "#ffffff",
+            footercolor,
+            footerstatus,
+            headerlogo: null, // will be injected via multipart
+            footerlogo: null, // will be injected via multipart
+          },
+        },
+      };
+  
+      const map = {
+        "0": ["variables.input.headerlogo"],
+        "1": ["variables.input.footerlogo"],
+      };
+  
+      const formData = new FormData();
+      formData.append("operations", JSON.stringify(operations));
+      formData.append("map", JSON.stringify(map));
+      formData.append("0", headerLogo);
+      formData.append("1", footerLogo);
+  
       const response = await fetch("https://0a35-103-206-131-194.ngrok-free.app/graphql", {
         method: "POST",
         body: formData,
       });
+  
       const result = await response.json();
       const res = result?.data?.addHomePageSetting;
   
-      if (res?.resMessage === "Settings already exist" && res?.id) {
-        await handleUpdate(res.id); // Run update logic
+      if (res?.resStatus === "SUCCESS") {
+        toast.success("Settings saved successfully!");
       } else {
-        toast.success("Home page settings saved! ✅");
+        toast.error(res?.resMessage || "Failed to save settings.");
       }
+  
     } catch (error) {
-      console.error("❌ Error:", error);
-      toast.error("Something went wrong");
+      console.error("❌ Submission Error:", error);
+      toast.error("Something went wrong while submitting.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleUpdate = async (id: number) => {
-    const updateOperations = {
-      query: `
-        mutation UpdateHomePageSetting(
-          $updateHomePageSettingId: ID!,
-          $headerbgcolor: String,
-          $headercolor: String,
-          $footertopbgcolor: String,
-          $footertopcolor: String,
-          $footertopstatus: String,
-          $footercolor: String,
-          $footerstatus: String,
-          $headerlogo: Upload,
-          $footerlogo: Upload
-        ) {
-          updateHomePageSetting(
-            id: $updateHomePageSettingId,
-            headerbgcolor: $headerbgcolor,
-            headercolor: $headercolor,
-            footertopbgcolor: $footertopbgcolor,
-            footertopcolor: $footertopcolor,
-            footertopstatus: $footertopstatus,
-            footercolor: $footercolor,
-            footerstatus: $footerstatus,
-            headerlogo: $headerlogo,
-            footerlogo: $footerlogo
-          ) {
-            id
-            resMessage
-          }
-        }
-      `,
-      variables: {
-        updateHomePageSettingId: id,
-        headerbgcolor,
-        headercolor,
-        footertopbgcolor,
-        footertopcolor,
-        footertopstatus,
-        footercolor,
-        footerstatus,
-        headerlogo: null,
-        footerlogo: null,
-      },
-    };
-  
-    const updateMap = {
-      "0": ["variables.headerlogo"],
-      "1": ["variables.footerlogo"],
-    };
-  
-    const updateFormData = new FormData();
-    updateFormData.append("operations", JSON.stringify(updateOperations));
-    updateFormData.append("map", JSON.stringify(updateMap));
-    updateFormData.append("0", headerLogo!);
-    updateFormData.append("1", footerLogo!);
-  
-    try {
-      const response = await fetch("https://0a35-103-206-131-194.ngrok-free.app/graphql", {
-        method: "POST",
-        body: updateFormData,
-      });
-      const result = await response.json();
-      const updated = result?.data?.updateHomePageSetting;
-  
-      if (updated?.resMessage) {
-        toast.success(updated.resMessage);
-      } else {
-        toast.success("Home page settings updated! ✅");
-      }
-    } catch (error) {
-      console.error("❌ Update Error:", error);
-      toast.error("Update failed");
-    }
-  };
   
   const statusOptions = [
     { value: "Active", label: "Active" },
@@ -185,34 +115,32 @@ const HeaderFooterSetting = () => {
   ];
 
   
-  // type DropdownOption = {
-  //   label: string;
-  //   action: () => void;
-  // };
+  type DropdownOption = {
+    label: string;
+    action: () => void;
+  };
 
-  // const options: DropdownOption[] = [
-  //   {
-  //     label: "Setting Page",
-  //     action: () => {
-  //       console.log("view more home page");
-  //       showListAction();
-  //     },
-  //   },
-  //   {
-  //     label: "Refresh",
-  //     action: () => {
-  //       console.log("Refresh clicked");
-  //     },
-  //   },
-  // ];
+  const options: DropdownOption[] = [
+    {
+      label: "Header/Footer Setting",
+      action: () => {
+        console.log("view Header footer page");
+        showHeaderFooterAction();
+      },
+    },
+    {
+      label: "Refresh",
+      action: () => {
+        console.log("Refresh clicked");
+      },
+    },
+  ];
 
   return (
     <div>
       <PageBreadcrumb pageTitle="Home Page Settings" />
       <div className="grid grid-cols-1 gap-6">
-        <ComponentCard title="Home Page Setting">
-        {/* <div className="space-y-6"> */}
-        {/* <ComponentCard title="Header/Footer Setting" isDropDownIcon={true} options={options}> */}
+        <ComponentCard title="Header/Footer Setting" isDropDownIcon={true} options={options}>
           <form onSubmit={handleSubmit}>
             <div className="flex flex-wrap justify-between">
               {/* Header and Footer Color Pickers */}
@@ -246,8 +174,8 @@ const HeaderFooterSetting = () => {
               </Button>
             </div>
           </form>
-        </ComponentCard>
-      </div>
+          </ComponentCard>
+          </div>
     </div>
   );
 };
