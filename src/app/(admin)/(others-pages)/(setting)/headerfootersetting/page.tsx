@@ -17,7 +17,7 @@
 
 import HeaderFooterSetting from "@/components/setting/headerfootersetting";
 import { useState } from "react";
-import Showheaderfootersetting from "../../../../../components/setting/showheaderfootersetting";
+import Showheaderfootersetting from "@/components/setting/showheaderfootersetting";
 
 export default function SignUp() {
   const [showList, setShowList] = useState<boolean>(false);
