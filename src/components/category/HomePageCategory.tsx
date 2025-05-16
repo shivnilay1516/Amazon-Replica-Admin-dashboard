@@ -162,8 +162,6 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
     const updatedContent = structuredClone(formData.content);
     updatedContent.rows[rowIndex].columns[colIndex].images[imgIndex].url = previewUrl;
     setFormData(prev => ({ ...prev, content: updatedContent }));
-
-    console.log("file",file)
   };
 
   const handleUpdateSubmit = async () => {

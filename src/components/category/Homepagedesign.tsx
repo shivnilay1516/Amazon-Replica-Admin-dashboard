@@ -1157,7 +1157,7 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
               <div className='flex flex-col border border-blue-400 p-2 rounded'>
                       <div>
                         <h2>First Col</h2>
-                        <Input type="number" placeholder='Enter number of image to show'
+                        <Input type="text" placeholder='Enter first col heading'
                          name=""
                          onChange={()=>{}}/>
 
@@ -1166,6 +1166,9 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
                                   name=""
                                   onChange={()=>{}}
                                 />
+                                 <Input type="text" placeholder='Enter first col subheading'
+                         name=""
+                         onChange={()=>{}}/>
                       </div>
                  </div>
               <div className="flex justify-center">
