@@ -1153,6 +1153,28 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
               </div>
           </form>
 
+          <form onSubmit={()=>{""}} action=" " className='space-y-6 mt-4' style={{ display: selectCategory=== "product wise 4 columns " ? 'block' : 'none' }} >
+              <div className='flex flex-col border border-blue-400 p-2 rounded'>
+                      <div>
+                        <h2>First Col</h2>
+                        <Input type="number" placeholder='Enter number of image to show'
+                         name=""
+                         onChange={()=>{}}/>
+
+                          <FileInput
+                                  className="custom-class"
+                                  name=""
+                                  onChange={()=>{}}
+                                />
+                      </div>
+                 </div>
+              <div className="flex justify-center">
+                  <Button size="sm" variant="primary">
+                    {loading ? 'Submitting...' : 'Submit'}
+                  </Button>
+              </div>
+          </form>
+
           </div>
           <div className='border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] py-4 px-5 rounded-2xl'>
             <Image src={selectedImage ? selectedImage : dummy_img} alt="Selected Image" width={500} height={400} className='py-3 w-full' />

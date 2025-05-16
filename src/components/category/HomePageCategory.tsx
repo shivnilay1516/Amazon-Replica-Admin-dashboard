@@ -39,6 +39,7 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
   void showHomeListAction;
   const API_URL = 'https://0a35-103-206-131-194.ngrok-free.app';
 
+  console.log("formData",formData)
 
   useEffect(() => {
     const fetchDesigns = async () => {
@@ -147,7 +148,7 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
     setEditingItem(item);
     setFormData({ ...item });
   };
-
+  
   const handleImageChange = async (
     e: React.ChangeEvent<HTMLInputElement>,
     rowIndex: number,
@@ -157,56 +158,19 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
     const file = e.target.files?.[0];
     if (!file) return;
   
-    // Step 1: Show temporary preview
     const previewUrl = URL.createObjectURL(file);
-  
     const updatedContent = structuredClone(formData.content);
-    const image = updatedContent.rows[rowIndex].columns[colIndex].images[imgIndex];
-    image.url = previewUrl;
-  
+    updatedContent.rows[rowIndex].columns[colIndex].images[imgIndex].url = previewUrl;
     setFormData(prev => ({ ...prev, content: updatedContent }));
-  
-    // Step 2: Upload to backend
-    const formDataUpload = new FormData();
-    formDataUpload.append("file", file);
-  
-    try {
-      const res = await axiosInstance.post("https://0a35-103-206-131-194.ngrok-free.app/graphql", formDataUpload, {
-        headers: {
-          "Content-Type": "multipart/form-data"
-        }
-      });
-  
-      const uploadedUrl = res.data?.url;
-  
-      if (uploadedUrl) {
-        // ✅ Replace preview URL with actual uploaded URL
-        const freshContent = structuredClone(formData.content);
-        const finalImage = freshContent.rows[rowIndex].columns[colIndex].images[imgIndex];
-        finalImage.url = uploadedUrl;
-  
-        setFormData(prev => ({ ...prev, content: freshContent }));
-        toast.success("Image uploaded successfully");
-      } else {
-        toast.error("Upload failed: No URL returned from server");
-      }
-    } catch (err) {
-      console.error("Upload error:", err);
-      toast.error("Image upload failed");
-    }
+
+    console.log("file",file)
   };
-  
-  
-  
-  
-  
 
   const handleUpdateSubmit = async () => {
     if (!editingItem) return;
   
     const updatedFormData = { ...formData };
-  
-    // Upload advertisement image if blob
+
     if (updatedFormData.advertisement?.startsWith('blob:')) {
       const fileInput = document.querySelector('input[type="file"][accept="image/*"]') as HTMLInputElement;
       const file = fileInput?.files?.[0];
@@ -222,8 +186,7 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
         }
       }
     }
-  
-    // Upload any remaining blob images in content (fallback, in case user skipped file input handler)
+
     if (updatedFormData.content?.rows) {
       for (const row of updatedFormData.content.rows) {
         for (const col of row.columns) {
@@ -244,6 +207,8 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
         }
       }
     }
+
+    console.log("222",updatedFormData.content?.rows)
   
     // Detect only changed fields
     const changedFields: any = {};
@@ -303,6 +268,8 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
       });
   
       const res = response.data?.data?.updatecarouselSectionDesign;
+
+      console.log("updatedFormData",updatedFormData)
   
       if (res?.resStatus === 'success') {
         toast.success(res.resMessage || 'Updated successfully');
@@ -387,7 +354,7 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
       </div>
 {editingItem && (
   <div className="fixed inset-0 z-50 bg-black bg-opacity-40 flex items-center justify-center">
-    <div className="bg-white p-6 rounded-lg w-[400px] h-[600px] overflow-y-auto">
+    <div className="bg-white p-6 rounded-lg w-[500px] h-[600px] overflow-y-auto">
       <div className='flex justify-between mb-4 text-center'>
         <h2 className="text-lg font-bold">Edit Section</h2>
         <button onClick={() => setEditingItem(null)} className='cursor-pointer p-[3px] rounded border'>X</button>
