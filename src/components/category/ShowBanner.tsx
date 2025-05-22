@@ -21,47 +21,80 @@ interface Banner {
   resMessage: string;
 }
 
-const ShowBannerImages = () => {
+type BannerType = {
+  id: string;
+  bannerlink: string;
+  bannerimage: string;
+  resStatus?: string;
+  resMessage?: string;
+};
+type DeleteBannerResponse = {
+  data: {
+    deleteBanner: {
+      id: string;
+      resStatus: string;
+      resMessage: string;
+    };
+  };
+};
+
+interface ShowBannerProps {
+  showListAction: () => void;
+}
+
+const ShowBannerImages = ({showListAction }: ShowBannerProps) => {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(false);
 
+  void showListAction;
+
   const API_URL = 'https://0a35-103-206-131-194.ngrok-free.app';
 
-  useEffect(() => {
-    const fetchBanners = async () => {
-      setLoading(true);
-      try {
-        const response = await axiosInstance.post('/graphql', {
-          query: `
-            query {
-              getAllBanner {
-                id
-                bannerlink
-                bannerimage
-                resStatus
-                resMessage
-              }
+useEffect(() => {
+  const fetchBanners = async () => {
+    setLoading(true);
+    try {
+      const response = await axiosInstance.post<{
+        data: {
+          getAllBanner: BannerType[]; 
+        };
+      }>('/graphql', {
+        query: `
+          query {
+            getAllBanner {
+              id
+              bannerlink
+              bannerimage
+              resStatus
+              resMessage
             }
-          `,
-        });
+          }
+        `,
+      });
 
-        const result = response.data?.data?.getAllBanner;
+      const result = response.data?.data?.getAllBanner;
 
-        if (Array.isArray(result)) {
-          setBanners(result);
-        } else {
-          alert('Unexpected response format.');
-        }
-      } catch (error) {
-        console.error('Fetch error:', error);
-        alert('Failed to fetch banners.');
-      } finally {
-        setLoading(false);
+      if (Array.isArray(result)) {
+        const normalized = result.map((b): Banner => ({
+    ...b,
+    resStatus: b.resStatus || '',    
+    resMessage: b.resMessage || '',  
+  }));
+        setBanners(normalized);
+      } else {
+        alert('Unexpected response format.');
       }
-    };
+    } catch (error) {
+      console.error('Fetch error:', error);
+      alert('Failed to fetch banners.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchBanners();
-  }, []);
+  fetchBanners();
+}, []);
+
 
   const handleDelete = async (id: string) => {
     const confirmDelete = confirm('Are you sure you want to delete this banner?');
@@ -72,7 +105,7 @@ const ShowBannerImages = () => {
     setBanners(prev => prev.filter(banner => String(banner.id) !== String(id)));
 
     try {
-      const response = await axiosInstance.post('/graphql', {
+      const response = await axiosInstance.post<DeleteBannerResponse>('/graphql', {
         query: `
           mutation DeleteBanner($deleteBannerId: ID!) {
             deleteBanner(id: $deleteBannerId) {
@@ -91,14 +124,14 @@ const ShowBannerImages = () => {
 
       if (result?.resStatus !== 'SUCCESS') {
         alert(result?.resMessage || 'Failed to delete.');
-        setBanners(previousBanners); // rollback
+        setBanners(previousBanners);
       } else {
         alert('Banner deleted successfully.');
       }
     } catch (error) {
       console.error('Delete error:', error);
       alert('Error occurred while deleting.');
-      setBanners(previousBanners); // rollback
+      setBanners(previousBanners);
     }
   };
 

@@ -15,9 +15,11 @@
 
 "use client";
 
-import HeaderFooterSetting from "@/components/setting/headerfootersetting";
+// import HeaderFooterSetting from "@/components/setting/headerfootersetting";
 import { useState } from "react";
-import Showheaderfootersetting from "@/components/setting/showheaderfootersetting";
+// im/port Showheaderfootersetting from "@/components/setting/showheaderfootersetting";
+import HeaderFooterSetting from "../../../../../components/setting/headerfootersetting";
+import Showheaderfootersetting from "../../../../../components/setting/Showheaderfootersetting";
 
 export default function SignUp() {
   const [showList, setShowList] = useState<boolean>(false);
@@ -32,7 +34,7 @@ export default function SignUp() {
   return (
     <div>
       {showList ? (
-        <Showheaderfootersetting showHeaderFooterAction={showHeaderFooter} />
+        <Showheaderfootersetting showHeaderFooterListAction={showHeaderFooter} />
       ) : (
         <>
         <HeaderFooterSetting showHeaderFooterAction={showHeaderFooter} />

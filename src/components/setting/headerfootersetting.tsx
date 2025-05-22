@@ -85,10 +85,14 @@ const HeaderFooterSetting = ({ showHeaderFooterAction }: sectioncategoryprops) =
       formData.append("map", JSON.stringify(map));
       formData.append("0", headerLogo);
       formData.append("1", footerLogo);
+
+
+      const Token="babsdakfksfasnfs"
   
       const response = await fetch("https://0a35-103-206-131-194.ngrok-free.app/graphql", {
         method: "POST",
         body: formData,
+        headers: { Authorization: `Bearer ${Token}`,}
       });
   
       const result = await response.json();

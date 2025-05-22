@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import {
   Table,
@@ -71,8 +72,8 @@ export default function BasicTableOne() {
             {/* Table Header */}
             <TableHeader className="border-b border-gray-100 dark:border-white/[0.05]">
               <TableRow>
-                {column?.map((item) => 
-                  (<TableCell
+                {column?.map((item,index) => 
+                  (<TableCell key={index}
                   isHeader
                   className="px-5 py-3 font-medium text-gray-500 text-start text-theme-xs dark:text-gray-400"
                 >

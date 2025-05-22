@@ -13,7 +13,7 @@ import {
   // ListIcon,
   // PageIcon,
   // PieChartIcon,
-  // PlugInIcon,
+  PlugInIcon,
   // TableIcon,
   UserCircleIcon,
 } from "../icons/index";
@@ -106,14 +106,14 @@ const othersItems: NavItem[] = [
   //     { name: "Videos", path: "/videos", pro: false },
   //   ],
   // },
-  // {
-  //   icon: <PlugInIcon />,
-  //   name: "Authentication",
-  //   subItems: [
-  //     { name: "Sign In", path: "/signin", pro: false },
-  //     { name: "Sign Up", path: "/signup", pro: false },
-  //   ],
-  // },
+  {
+    icon: <PlugInIcon />,
+    name: "Authentication",
+    subItems: [
+      { name: "Sign In", path: "/signin", pro: false },
+      { name: "Sign Up", path: "/signup", pro: false },
+    ],
+  },
 ];
 
 const AppSidebar: React.FC = () => {

@@ -16,12 +16,13 @@ import { toast } from 'react-toastify';
 interface SectionDesign {
   id: string;
   hompagesectioncategory_id: string;
+  sectionplaceid?: string;
   advertisement: string;
   advertisement_link: string;
   heading: string;
   imglimit: number;
   perslideimage: number;
-  content: string;
+  content: Content;
   status: string;
   resMessage: string;
   resStatus: string;
@@ -29,7 +30,44 @@ interface SectionDesign {
   updatedIstAt: string;
 }
 
-const HomePageCategory = ({ showHomeListAction }: any) => {
+interface UpdateCarouselResponse {
+  data: {
+    updatecarouselSectionDesign: {
+      id: string;
+      resMessage: string;
+      resStatus: 'success' | 'error' | string;
+    };
+  };
+}
+
+interface HomePageCategoryProps {
+  showHomeListAction: () => void;
+}
+
+
+interface ImageItem {
+  url: string;
+  file?: File;
+  link?: string;
+}
+
+interface Column {
+  heading: string;  
+  images: ImageItem[];
+}
+
+interface Row {
+  columns: Column[];
+}
+
+interface Content {
+  rows: Row[];
+}
+
+
+
+
+const HomePageCategory = ({ showHomeListAction }: HomePageCategoryProps) => {
   const [designs, setDesigns] = useState<SectionDesign[]>([]);
   const [categoryNames, setCategoryNames] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
@@ -45,7 +83,9 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
     const fetchDesigns = async () => {
       setLoading(true);
       try {
-        const response = await axiosInstance.post('/graphql', {
+        const response = await axiosInstance.post<{
+        data: { getAllSectionDesign: SectionDesign[] };
+      }>('/graphql', {
           query: `
             query {
               getAllSectionDesign {
@@ -91,7 +131,13 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
 
   const fetchCategoryName = async (categoryId: string) => {
     try {
-      const res = await axiosInstance.post('/graphql', {
+      const res = await axiosInstance.post<{
+        data:{
+          getIDHomeSectionCategory:{
+            categoryname: string;
+          }
+        }
+      }>('/graphql', {
         query: `
           query Query($getIdHomeSectionCategoryId: ID!) {
             getIDHomeSectionCategory(id: $getIdHomeSectionCategoryId) {
@@ -116,7 +162,14 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
   const handleDelete = useCallback(async (id: string) => {
     setDeletingId(id);
     try {
-      const response = await axiosInstance.post('/graphql', {
+      const response = await axiosInstance.post<{
+        data:{
+          deleteSection:{
+            resMessage: string;
+            resStatus:string;
+          }
+        }
+      }>('/graphql', {
         query: `
           mutation DeleteSection($deleteSectionId: ID!) {
             deleteSection(id: $deleteSectionId) {
@@ -149,20 +202,29 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
     setFormData({ ...item });
   };
   
+
   const handleImageChange = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-    rowIndex: number,
-    colIndex: number,
-    imgIndex: number
-  ) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-  
-    const previewUrl = URL.createObjectURL(file);
-    const updatedContent = structuredClone(formData.content);
-    updatedContent.rows[rowIndex].columns[colIndex].images[imgIndex].url = previewUrl;
-    setFormData(prev => ({ ...prev, content: updatedContent }));
-  };
+  e: React.ChangeEvent<HTMLInputElement>,
+  rowIndex: number,
+  colIndex: number,
+  imgIndex: number
+) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  const previewUrl = URL.createObjectURL(file);
+
+  if (!formData.content) return;
+
+  const updatedContent = structuredClone(formData.content);
+  updatedContent.rows[rowIndex].columns[colIndex].images[imgIndex].url = previewUrl;
+
+  setFormData(prev => ({
+    ...prev,
+    content: updatedContent
+  }));
+};
+
 
   const handleUpdateSubmit = async () => {
     if (!editingItem) return;
@@ -177,8 +239,10 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
         formDataUpload.append('file', file);
         try {
           const res = await axiosInstance.post('/graphql', formDataUpload);
-          updatedFormData.advertisement = res.data.url;
+          const responseData = res.data as { url: string };
+          updatedFormData.advertisement = responseData.url;
         } catch (err) {
+          console.log("Error",err)
           toast.error('Advertisement image upload failed');
           return;
         }
@@ -194,9 +258,11 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
               formDataUpload.append('file', img.file);
               try {
                 const res = await axiosInstance.post('/graphql', formDataUpload);
-                img.url = res.data.url;
+                const responseData = res.data as { url: string };
+                img.url = responseData.url;
                 delete img.file;
               } catch (err) {
+                console.log("Error occure on the uploading", err)
                 toast.error('One or more image uploads failed');
                 return;
               }
@@ -205,12 +271,10 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
         }
       }
     }
-
-    console.log("222",updatedFormData.content?.rows)
   
     // Detect only changed fields
-    const changedFields: any = {};
-    Object.keys(updatedFormData).forEach(key => {
+    const changedFields: Partial<Record<keyof SectionDesign, SectionDesign[keyof SectionDesign]>> = {};
+    (Object.keys(updatedFormData) as (keyof SectionDesign)[]).forEach(key => {
       const originalValue = editingItem[key];
       const newValue = updatedFormData[key];
       if (JSON.stringify(originalValue) !== JSON.stringify(newValue)) {
@@ -225,7 +289,7 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
   
     // Submit update mutation
     try {
-      const response = await axiosInstance.post('/graphql', {
+      const response = await axiosInstance.post<UpdateCarouselResponse>('/graphql', {
         query: `
           mutation UpdateCarousel(
             $updatecarouselSectionDesignId: ID!
@@ -258,7 +322,10 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
           hompagesectioncategoryId: changedFields.hompagesectioncategory_id,
           sectionplaceid: changedFields.sectionplaceid,
           heading: changedFields.heading,
-          rows: changedFields.content?.rows,
+          rows: (changedFields.content && typeof changedFields.content === 'object')
+    ? changedFields.content.rows
+    : undefined,
+          // rows: changedFields.content?.rows,
           imglimit: changedFields.imglimit,
           perslideimage: changedFields.perslideimage,
           status: changedFields.status,
@@ -272,7 +339,7 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
       if (res?.resStatus === 'success') {
         toast.success(res.resMessage || 'Updated successfully');
         setDesigns(prev =>
-          prev.map(d => d.id === editingItem.id ? { ...d, ...changedFields } : d)
+          prev.map(d => d.id === editingItem.id ? { ...d, ...changedFields } as SectionDesign : d)
         );
         setEditingItem(null);
         setFormData({});
@@ -368,7 +435,13 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
             <>
               {value ? (
                 <Image
-                  src={value.startsWith('blob:') ? value : `${API_URL}${value}`}
+                    src={
+                          typeof value === 'string'
+                            ? value.startsWith('blob:')
+                              ? value
+                              : `${API_URL}${value}`
+                            : `${API_URL}${value.toString()}`
+                        }
                   width={200}
                   height={200}
                   alt="Advertisement"
@@ -390,13 +463,13 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
             </>
           ) : field === 'content' && typeof value === 'object' && value !== null ? (
             <div className="space-y-4">
-              {value.rows.map((row: any, rowIndex: number) => (
+              {value.rows.map((row: Row, rowIndex: number) => (
                 <div key={rowIndex} className="space-y-2">
-                  {row.columns.map((column: any, colIndex: number) => (
+                  {row.columns.map((column: Column, colIndex: number) => (
                     <div key={colIndex} className="p-3 border rounded bg-gray-50">
                       <p className="font-semibold mb-2">{column.heading}</p>
                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                        {column.images.map((img: any, imgIndex: number) => (
+                        {column.images.map((img: ImageItem, imgIndex: number) => (
                           <div key={imgIndex} className="text-xs text-center w-full flex flex-col">
                             <Image
                               src={
@@ -423,8 +496,10 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
                               placeholder="Enter link"
                               onChange={(e) => {
                                 const updatedContent = { ...formData.content };
+                                if (!updatedContent.rows) return; 
                                 updatedContent.rows[rowIndex].columns[colIndex].images[imgIndex].link = e.target.value;
-                                setFormData(prev => ({ ...prev, content: updatedContent }));
+                                setFormData(prev => ({ ...prev, content: {...updatedContent,
+    rows: updatedContent.rows ?? [],} }));
                               }}
                               className="mt-2 w-full border px-2 py-1 rounded text-xs"
                             />
@@ -435,6 +510,7 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
                   ))}
                 </div>
               ))}
+              
             </div>
           ) : (
             <input
@@ -442,7 +518,7 @@ const HomePageCategory = ({ showHomeListAction }: any) => {
               className="w-full border px-3 py-2 rounded"
               value={typeof value === 'object' && value !== null ? JSON.stringify(value, null, 2) : value ?? ''}
               onChange={(e) => {
-                let newValue: any = e.target.value;
+                let newValue: string| number| Record< string, unknown> = e.target.value;
                 if (typeof value === 'number') {
                   newValue = Number(newValue);
                 } else if (typeof value === 'object' && value !== null) {

@@ -88,6 +88,33 @@ const getIndex = (name: string): number => {
 }
 type FormValue = string | number | boolean | File | null;
 
+type PresentationFormData = {
+  [key: string]: string | undefined;
+};
+interface AdvertisementCarouselSection {
+  id: number;
+  title: string;
+  heading: string;
+  link: string;
+}
+
+type Category = {
+  id: number;
+  categoryname: string;
+  categoryimage: string;
+  resMessage: string;
+  resStatus: string;
+};
+
+type GetHomeSectionCategoryResponse = {
+  data: {
+    getHomeSectionCategory: Category[];
+  };
+};
+interface CrouselFormData {
+  [key: `path-${number}`]: string | undefined;
+}
+
 
 const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
   const [selectOptions, setOptions] = useState<OptionType[]>([]);
@@ -136,9 +163,56 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
     }
   };
 
-  const fetchOptions = async () => {
-    try {
-      const response = await axios.post(`${API_URL}/graphql`, {
+  // const fetchOptions = async () => {
+  //   try {
+  //     const response = await axios.post(`${API_URL}/graphql`, {
+  //       query: `
+  //         query Query {
+  //           getHomeSectionCategory {
+  //             id
+  //             categoryname
+  //             categoryimage
+  //             resMessage
+  //             resStatus
+  //           }
+  //         }
+  //       `,
+  //     });
+  //     const roles = response.data.data.getHomeSectionCategory;
+  //     const formattedOptions = roles.map((role: {id: number; categoryname: string; categoryimage: string }) => ({
+  //       value: role.id,
+  //       label: (
+  //         <div className="flex items-center gap-2">
+  //           <Image
+  //             src={role.categoryimage}
+  //             alt={role.categoryimage}
+  //             width={20}
+  //             height={20}
+  //             className="w-5 h-5 rounded-full"
+  //           />
+  //           {role.categoryname}
+  //         </div>
+  //       ),
+  //       image: role.categoryimage,
+  //       category: role.categoryname,
+  //     }));
+
+  //     setOptions(formattedOptions);
+  //     setLoading(false);
+  //   } catch (error) {
+  //     console.error('Failed to fetch roles:', error);
+  //     setLoading(false);
+  //   }
+  // };
+
+
+
+
+const fetchOptions = async () => {
+  try {
+    const response = await axios.post<GetHomeSectionCategoryResponse>(
+      `${API_URL}/graphql`,
+      {
         query: `
           query Query {
             getHomeSectionCategory {
@@ -150,33 +224,37 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
             }
           }
         `,
-      });
-      const roles = response.data.data.getHomeSectionCategory;
-      const formattedOptions = roles.map((role: any) => ({
-        value: role.id,
-        label: (
-          <div className="flex items-center gap-2">
-            <Image
-              src={role.categoryimage}
-              alt={role.categoryimage}
-              width={20}
-              height={20}
-              className="w-5 h-5 rounded-full"
-            />
-            {role.categoryname}
-          </div>
-        ),
-        image: role.categoryimage,
-        category: role.categoryname,
-      }));
+      }
+    );
 
-      setOptions(formattedOptions);
-      setLoading(false);
-    } catch (error) {
-      console.error('Failed to fetch roles:', error);
-      setLoading(false);
-    }
-  };
+    const roles = response.data.data.getHomeSectionCategory;
+
+    const formattedOptions = roles.map((role) => ({
+      value: role.id.toString(),
+      label: (
+        <div className="flex items-center gap-2">
+          <Image
+            src={role.categoryimage}
+            alt={role.categoryname}
+            width={20}
+            height={20}
+            className="w-5 h-5 rounded-full"
+          />
+          {role.categoryname}
+        </div>
+      ),
+      image: role.categoryimage,
+      category: role.categoryname,
+    }));
+
+    setOptions(formattedOptions);
+    setLoading(false);
+  } catch (error) {
+    console.error("Failed to fetch roles:", error);
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     fetchOptions();
@@ -310,7 +388,7 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
   
     // ✅ Append the actual image files
     uploadedImages.forEach((img: ImageContainer) => {
-      formDataToSubmit.append(img.index, img.file);
+      formDataToSubmit.append(img.index.toString(), img.file);
     });
   
     try {
@@ -319,7 +397,7 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
       });
   
       const responseData = response.data as {
-        data?: { column4addSectionDesign: any };
+        data?: { column4addSectionDesign: unknown };
         errors?: { message: string }[];
       };
   
@@ -332,8 +410,13 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
         alert('Data submitted successfully!');
         console.log('GraphQL Response:', responseData);
       }
-    } catch (error: any) {
-      console.error('Request Error:', error.response?.data || error.message);
+    } catch (error: unknown) {
+      if(error instanceof Error){
+        console.error('Request Error:',error.message);
+      }
+      else{
+        console.error("An unknown error occur")
+      }
       alert('There was a network or server error submitting the form.');
     } finally {
       setLoading(false);
@@ -418,9 +501,13 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
     }
   
     // ✅ Validate each image path or file
+
+
+    const formDataTyped =crouselformData as CrouselFormData
     const missingImages: string[] = [];
     const imagesArray = Array.from({ length: imageLength }, (_, i) => {
-      const path = (crouselformData as any)[`path-${i}`]?.trim();
+      const path = formDataTyped[`path-${i}`]?.trim();
+      // const path = (crouselformData as any)[`path-${i}`]?.trim();
       const file = crouselimage.find(img => Number(img.index) === i)?.file;
   
       if (!path && !file) {
@@ -508,8 +595,14 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
         alert("Data submitted successfully!");
         console.log("GraphQL Response:", resData);
       }
-    } catch (error: any) {
-      console.error("Submission Error:", error.response?.data || error.message);
+    } catch (error: unknown) {
+      
+      if(error instanceof Error){
+        console.error("Submission Error:", error.message);
+      }
+      else{
+        console.log("Unknown error")
+      }
       alert("Network/server error occurred while submitting the form.");
     } finally {
       setLoading(false);
@@ -587,19 +680,22 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
     const advertisementFile = presentationformData['advertisementdata'];
     const presentimageLength = parseInt(imageLengthStr, 10);
   
-    // ✅ Field validation
     if (!heading || !imageLengthStr || isNaN(presentimageLength) || !perSlideImage || !advertisementFile) {
       alert("Please fill in all required fields: heading, image length, images per slide, and advertisement image.");
       setLoading(false);
       return;
     }
   
-    // ✅ Validate each image's fields
+    const presentationformdata= presentationformData as PresentationFormData
+
     const missingFields: string[] = [];
     const imagesArray = Array.from({ length: presentimageLength }, (_, i) => {
-      const path = (presentationformData as any)[`path-${i}`]?.trim() || null;
-      const imgHeading = (presentationformData as any)[`heading-${i}`]?.trim();
-      const title = (presentationformData as any)[`title-${i}`]?.trim();
+      const path = presentationformdata[`path-${i}`]?.trim() || null;
+      const imgHeading = presentationformdata[`heading-${i}`]?.trim();
+      const title = presentationformdata[`title-${i}`]?.trim();
+      // const path = (presentationformData as any)[`path-${i}`]?.trim() || null;
+      // const imgHeading = (presentationformData as any)[`heading-${i}`]?.trim();
+      // const title = (presentationformData as any)[`title-${i}`]?.trim();
       const file = presentationimage.find(img => Number(img.index) === i)?.file;
   
       if (!path && !file) missingFields.push(`Image ${i + 1}: File or link`);
@@ -620,7 +716,8 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
       return;
     }
   
-    const advLink = URL.createObjectURL(advertisementFile);
+    const advLink = advertisementFile;
+    // const advLink = URL.createObjectURL(advertisementFile);
   
     const payload = {
       query: `
@@ -694,7 +791,7 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
       });
   
       const resData = response.data as {
-        data?: { advertisementcarouseladdSectionDesign: any };
+        data?: { advertisementcarouseladdSectionDesign: AdvertisementCarouselSection };
         errors?: { message: string }[];
       };
   
@@ -707,8 +804,13 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
         alert("Data submitted successfully!");
         console.log("GraphQL Response:", resData);
       }
-    } catch (error: any) {
-      console.error("Submission Error:", error.response?.data || error.message);
+    } catch (error: unknown) {
+      if(error instanceof Error){
+        console.error("Submission Error:", error.message);
+      }
+      else{
+        console.log("Unknown Error", error)
+      }
       alert("Network/server error occurred while submitting the form.");
     } finally {
       setLoading(false);
@@ -742,10 +844,10 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
     <div>
       <PageBreadcrumb pageTitle="Home Page Section" />  
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 items-start">
-        <div className="border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] py-4 px-5 rounded-2xl">
+        <div className="border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] rounded-2xl">
         <div className="space-y-6">
         <ComponentCard title="Section Category Section" isDropDownIcon={true} options={options}>
-          <form className="space-y-6 mb-6">
+          <form className="space-y-6 mb-6 z-10">
             <Label>Select Category</Label>
             <Select
               options={selectOptions}
@@ -753,7 +855,7 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
               placeholder="Select role"
               classNames={{
                 control: ({ isFocused }) =>
-                  `h-11 w-full rounded-lg border bg-white dark:bg-gray-800  ${isFocused ? 'border-ring-brand-300' : 'border-gray-300'} text-sm text-gray-500 shadow-theme-xs transition-colors focus:outline-none`,
+                  `w-full rounded-lg border bg-white dark:bg-gray-800  ${isFocused ? 'border-ring-brand-300' : 'border-gray-300'} text-sm text-gray-500 shadow-theme-xs transition-colors focus:outline-none`,
                 placeholder: () => 'text-gray-400',
                 singleValue: () => 'text-gray-500',
                 menu: () => 'z-20',
@@ -1179,9 +1281,11 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
           </form>
 
           </div>
-          <div className='border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] py-4 px-5 rounded-2xl'>
-            <Image src={selectedImage ? selectedImage : dummy_img} alt="Selected Image" width={500} height={400} className='py-3 w-full' />
+                  <ComponentCard title={selectedImage ? "Preview Image" : "Default Image"}>
+          <div className='flex'>
+            <Image src={selectedImage ? selectedImage : dummy_img} alt="Selected Image" width={500} height={400} className='w-full' />
           </div>
+          </ComponentCard>
         </div>
       </div>
     )

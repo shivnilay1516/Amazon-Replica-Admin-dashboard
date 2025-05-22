@@ -25,9 +25,34 @@ interface HomeSetting {
   footerlogo: string;
 }
 
+interface ShowHeaderFooterProps {
+  showHeaderFooterListAction: () => void;
+}
+
+interface HomeSettingDetails {
+  id: string;
+  headerbgcolor: string;
+  headercolor: string;
+  footertopbgcolor: string;
+  footertopcolor: string;
+  footertopstatus: string;
+  footercolor: string;
+  footerbgcolor: string;
+  footerstatus: string;
+  headerlogo: string;
+  footerlogo: string;
+}
+
+interface GetHomeSettingDetailsResponse {
+  data: {
+    getHomeSettingDetails: HomeSettingDetails[];
+  };
+}
+
+
 const API_URL = 'https://0a35-103-206-131-194.ngrok-free.app';
 
-const Showheaderfootersetting = () => {
+const Showheaderfootersetting = ({showHeaderFooterListAction}: ShowHeaderFooterProps) => {
   const [settings, setSettings] = useState<HomeSetting | null>(null);
   const [loading, setLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
@@ -36,11 +61,13 @@ const Showheaderfootersetting = () => {
   const [headerLogo, setHeaderLogo] = useState<File | null>(null);
   const [footerLogo, setFooterLogo] = useState<File | null>(null);
 
+  void showHeaderFooterListAction;
+
   useEffect(() => {
     const fetchSettings = async () => {
       setLoading(true);
       try {
-        const response = await axiosInstance.post('/graphql', {
+        const response = await axiosInstance.post<GetHomeSettingDetailsResponse>('/graphql', {
           query: `
             query GetHomeSettingDetails {
               getHomeSettingDetails {
@@ -198,7 +225,7 @@ const Showheaderfootersetting = () => {
     <div>
       <PageBreadcrumb pageTitle="Header/Footer Setting" />
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-1">
-        <div className="overflow-hidden rounded-xl border bg-white p-4">
+        <div className="overflow-hidden rounded-xl bg-white">
           <div className="overflow-x-auto w-full">
   <Table className="min-w-[800px] w-full border rounded-md">
     <TableHeader>

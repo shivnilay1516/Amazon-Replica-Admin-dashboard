@@ -12,3 +12,6 @@ const GET_SELLERS = gql`
 `;
 
 const { data } = await client.query({ query: GET_SELLERS });
+
+console.log(data);
+

@@ -20,6 +20,33 @@ type Props = {
   showListAction: () => void; 
 };
 
+interface UpdateHomeSectionCategoryResponse {
+  data: {
+    updateHomeSectionCategory: {
+      id: string;
+      categoryname: string;
+      categoryimage: string;
+      resMessage: string;
+      resStatus: 'Success' | 'Failure'; // or string, depending on your API
+    };
+  };
+}
+
+interface GetHomeSectionCategoryItem {
+  id: string;
+  categoryname: string;
+  categoryimage: string;
+  resMessage?: string;
+  resStatus: string;
+}
+
+interface GetHomeSectionCategoryResponse {
+  data: {
+    getHomeSectionCategory: GetHomeSectionCategoryItem[];
+  };
+}
+
+
 const ShowPageSectionCategoryList = ({ showListAction }: Props) => {
   const [categoryData, setCategoryData] = useState<Order[]>([]);
   const [loading, setLoading] = useState(false);
@@ -31,78 +58,163 @@ const ShowPageSectionCategoryList = ({ showListAction }: Props) => {
   void showListAction;
   const API_URL = 'https://0a35-103-206-131-194.ngrok-free.app';
 
+  // useEffect(() => {
+  //   const fetchCategoryData = async () => {
+  //     setLoading(true);
+  //     try {
+  //       const query = {
+  //         query: `query GetHomeSectionCategory {
+  //           getHomeSectionCategory {
+  //             id
+  //             categoryname
+  //             categoryimage
+  //             resMessage
+  //             resStatus
+  //           }
+  //         }`,
+  //       };
+
+  //       const response = await axiosInstance.post('/graphql', query);
+  //       const result = response?.data?.data?.getHomeSectionCategory;
+
+  //       const formatted: Order[] = result.map((item: {
+  //         id: string;
+  //         categoryname: string;
+  //         categoryimage: string;
+  //         resStatus: string
+  //       }) => ({
+  //         id: item.id,
+  //         categoryName: item.categoryname,
+  //         Description: item.categoryimage,
+  //         status: item.resStatus,
+  //       }));
+
+  //       setCategoryData(formatted);
+  //     } catch (error) {
+  //       console.error(error);
+  //       toast.error("Failed to fetch category data.");
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
+
+  //   fetchCategoryData();
+  // }, []);
+
   useEffect(() => {
-    const fetchCategoryData = async () => {
-      setLoading(true);
-      try {
-        const query = {
-          query: `query GetHomeSectionCategory {
-            getHomeSectionCategory {
-              id
-              categoryname
-              categoryimage
-              resMessage
-              resStatus
-            }
-          }`,
-        };
-
-        const response = await axiosInstance.post('/graphql', query);
-        const result = response?.data?.data?.getHomeSectionCategory;
-
-        const formatted: Order[] = result.map((item: any) => ({
-          id: item.id,
-          categoryName: item.categoryname,
-          Description: item.categoryimage,
-          status: item.resStatus,
-        }));
-
-        setCategoryData(formatted);
-      } catch (error) {
-        console.error(error);
-        toast.error("Failed to fetch category data.");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchCategoryData();
-  }, []);
-
-
-  const handleDelete = async (id: number) => {
-    setIsDeleting(true); // Start deleting state
-    const mutation = {
-      query: `
-        mutation DeleteHomeSectionCategory($deleteHomeSectionCategoryId: ID!) {
-          deleteHomeSectionCategory(id: $deleteHomeSectionCategoryId) {
-            resStatus
-            resMessage
-          }
-        }
-      `,
-      variables: {
-        deleteHomeSectionCategoryId: id,
-      },
-    };
-
+  const fetchCategoryData = async () => {
+    setLoading(true);
     try {
-      const response = await axiosInstance.post('/graphql', mutation);
-      const result = response.data?.data?.deleteHomeSectionCategory;
+      const query = {
+        query: `query GetHomeSectionCategory {
+          getHomeSectionCategory {
+            id
+            categoryname
+            categoryimage
+            resMessage
+            resStatus
+          }
+        }`,
+      };
 
-      if (result?.resStatus === 'Success') {
-        toast.success(result.resMessage || 'Category deleted successfully');
-        setCategoryData((prev) => prev.filter((item) => item.id !== id));
-      } else {
-        toast.error(result?.resMessage || 'Failed to delete category');
-      }
+      const response = await axiosInstance.post<GetHomeSectionCategoryResponse>('/graphql', query);
+      const result = response.data.data.getHomeSectionCategory;
+
+      const formatted: Order[] = result.map((item) => ({
+        id: Number(item.id),
+        categoryName: item.categoryname,
+        Description: item.categoryimage,
+        status: item.resStatus,
+      }));
+
+      setCategoryData(formatted);
     } catch (error) {
-      console.error('Delete error:', error);
-      toast.error('An error occurred while deleting the category.');
+      console.error(error);
+      toast.error("Failed to fetch category data.");
     } finally {
-      setIsDeleting(false); // Stop deleting state
+      setLoading(false);
     }
   };
+
+  fetchCategoryData();
+}, []);
+
+
+  // const handleDelete = async (id: number) => {
+  //   setIsDeleting(true); // Start deleting state
+  //   const mutation = {
+  //     query: `
+  //       mutation DeleteHomeSectionCategory($deleteHomeSectionCategoryId: ID!) {
+  //         deleteHomeSectionCategory(id: $deleteHomeSectionCategoryId) {
+  //           resStatus
+  //           resMessage
+  //         }
+  //       }
+  //     `,
+  //     variables: {
+  //       deleteHomeSectionCategoryId: id,
+  //     },
+  //   };
+
+  //   try {
+  //     const response = await axiosInstance.post('/graphql', mutation);
+  //     const result = response.data?.data?.deleteHomeSectionCategory;
+
+  //     if (result?.resStatus === 'Success') {
+  //       toast.success(result.resMessage || 'Category deleted successfully');
+  //       setCategoryData((prev) => prev.filter((item) => item.id !== id));
+  //     } else {
+  //       toast.error(result?.resMessage || 'Failed to delete category');
+  //     }
+  //   } catch (error) {
+  //     console.error('Delete error:', error);
+  //     toast.error('An error occurred while deleting the category.');
+  //   } finally {
+  //     setIsDeleting(false); // Stop deleting state
+  //   }
+  // };
+
+  const handleDelete = async (id: number) => {
+  setIsDeleting(true);
+
+  const mutation = {
+    query: `
+      mutation DeleteHomeSectionCategory($deleteHomeSectionCategoryId: ID!) {
+        deleteHomeSectionCategory(id: $deleteHomeSectionCategoryId) {
+          resStatus
+          resMessage
+        }
+      }
+    `,
+    variables: { deleteHomeSectionCategoryId: id },
+  };
+
+  try {
+    const response = await axiosInstance.post<{
+      data: {
+        deleteHomeSectionCategory: {
+          resStatus: string;
+          resMessage?: string;
+        };
+      };
+    }>('/graphql', mutation);
+
+    const result = response.data?.data?.deleteHomeSectionCategory;
+
+    if (result?.resStatus === 'Success') {
+      toast.success(result.resMessage || 'Category deleted successfully');
+      setCategoryData((prev) => prev.filter((item) => item.id !== id));
+    } else {
+      toast.error(result?.resMessage || 'Failed to delete category');
+    }
+  } catch (error) {
+    console.error('Delete error:', error);
+    toast.error('An error occurred while deleting the category.');
+  } finally {
+    setIsDeleting(false);
+  }
+};
+
   console.log("isDeleting",isDeleting)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -123,7 +235,11 @@ const ShowPageSectionCategoryList = ({ showListAction }: Props) => {
     const formData = new FormData();
   
     // Build the variables object dynamically
-    const variables = {
+    const variables:{
+      updateHomeSectionCategoryId: number;
+      categoryname?: string;
+      categoryimage?: string | null;
+    } = {
       updateHomeSectionCategoryId: editingItem.id,
     };
   
@@ -166,7 +282,7 @@ const ShowPageSectionCategoryList = ({ showListAction }: Props) => {
     setIsUpdating(true);
   
     try {
-      const response = await axiosInstance.post('/graphql', formData, {
+      const response = await axiosInstance.post<UpdateHomeSectionCategoryResponse>('/graphql', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
