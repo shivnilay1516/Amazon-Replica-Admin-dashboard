@@ -3,14 +3,15 @@ import React, { FormEvent, useState } from "react";
 import PageBreadcrumb from "../common/PageBreadcrumb";
 import ComponentCard from "../common/ComponentCard";
 import Label from "../form/Label";
-import Input from "../form/input/InputField";
+// import Input from "../form/input/InputField";
 import FileInput from "../form/input/FileInput";
 import Button from "../ui/button/Button";
 import { toast } from "react-toastify";
 import Select from "../form/Select";
+// import "../style/style.css"
 
-interface sectioncategoryprops{
-  showHeaderFooterAction:()=> void;
+interface sectioncategoryprops {
+  showHeaderFooterAction: () => void;
 }
 
 const HeaderFooterSetting = ({ showHeaderFooterAction }: sectioncategoryprops) => {
@@ -28,16 +29,54 @@ const HeaderFooterSetting = ({ showHeaderFooterAction }: sectioncategoryprops) =
   const [footerLogo, setFooterLogo] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const InputGroup = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => (
+    <div className="lg:w-[48%] md:w-[100%] sm:w-[100%] w-[100%] my-2">
+      <div className="flex items-center justify-between gap-4">
+        <Label className="whitespace-nowrap">{label}</Label>
+        <div className="flex items-center gap-2 py-1 px-2 border rounded-lg shadow-sm bg-white w-fit">
+          <label className="text-sm font-medium text-gray-700">Select Color</label>
+          <input
+            type="color"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-10 h-10 cursor-pointer rounded-2xl "
+            style={{
+              appearance: 'none',
+              WebkitAppearance: 'none',
+              MozAppearance: 'none',
+              padding: 0,
+              backgroundColor: 'transparent',
+            }}
+          />
+        </div>
+
+      </div>
+    </div>
+  );
+
+
+
+  const FileGroup = ({ label, onChange }: { label: string; onChange: (file: File) => void }) => (
+    <div className="lg:w-[48%] md:w-[100%] sm:w-[100%] w-[100%] my-2">
+      <Label>{label}</Label>
+      <FileInput
+        className="custom-class"
+        name=""
+        onChange={(e) => e.target.files && onChange(e.target.files[0])}
+      />
+    </div>
+  );
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-  
+
     if (!headerLogo || !footerLogo) {
       toast.info("Please upload both logos.");
       return;
     }
-  
+
     setLoading(true);
-  
+
     try {
       const operations = {
         query: `
@@ -69,41 +108,40 @@ const HeaderFooterSetting = ({ showHeaderFooterAction }: sectioncategoryprops) =
             footerbgcolor: footerbgcolor ?? "#ffffff",
             footercolor,
             footerstatus,
-            headerlogo: null, // will be injected via multipart
-            footerlogo: null, // will be injected via multipart
+            headerlogo: null,
+            footerlogo: null,
           },
         },
       };
-  
+
       const map = {
         "0": ["variables.input.headerlogo"],
         "1": ["variables.input.footerlogo"],
       };
-  
+
       const formData = new FormData();
       formData.append("operations", JSON.stringify(operations));
       formData.append("map", JSON.stringify(map));
       formData.append("0", headerLogo);
       formData.append("1", footerLogo);
 
+      const Token = "babsdakfksfasnfs";
 
-      const Token="babsdakfksfasnfs"
-  
       const response = await fetch("https://0a35-103-206-131-194.ngrok-free.app/graphql", {
         method: "POST",
         body: formData,
-        headers: { Authorization: `Bearer ${Token}`,}
+        headers: { Authorization: `Bearer ${Token}` },
       });
-  
+
       const result = await response.json();
       const res = result?.data?.addHomePageSetting;
-  
+
       if (res?.resStatus === "SUCCESS") {
         toast.success("Settings saved successfully!");
       } else {
         toast.error(res?.resMessage || "Failed to save settings.");
       }
-  
+
     } catch (error) {
       console.error("❌ Submission Error:", error);
       toast.error("Something went wrong while submitting.");
@@ -112,13 +150,11 @@ const HeaderFooterSetting = ({ showHeaderFooterAction }: sectioncategoryprops) =
     }
   };
 
-  
   const statusOptions = [
     { value: "Active", label: "Active" },
     { value: "Inactive", label: "Inactive" },
   ];
 
-  
   type DropdownOption = {
     label: string;
     action: () => void;
@@ -147,21 +183,18 @@ const HeaderFooterSetting = ({ showHeaderFooterAction }: sectioncategoryprops) =
         <ComponentCard title="Header/Footer Setting" isDropDownIcon={true} options={options}>
           <form onSubmit={handleSubmit}>
             <div className="flex flex-wrap justify-between">
-              {/* Header and Footer Color Pickers */}
               <InputGroup label="Header Background Color" value={headerbgcolor} onChange={setHeaderBgColor} />
               <InputGroup label="Header Text Color" value={headercolor} onChange={setHeaderColor} />
               <InputGroup label="Footer Top Background Color" value={footertopbgcolor} onChange={setFooterTopBgColor} />
               <InputGroup label="Footer Top Text Color" value={footertopcolor} onChange={setFooterTopColor} />
               <InputGroup label="Footer Background Color" value={footerbgcolor} onChange={setFooterBgColor} />
-              <InputGroup label="Footer  Color" value={footercolor} onChange={setFooterColor} />
+              <InputGroup label="Footer Text Color" value={footercolor} onChange={setFooterColor} />
               <InputGroup label="Response Status Color" value={resStatus} onChange={setResStatus} />
               <InputGroup label="Response Message Color" value={resMessage} onChange={setResMessage} />
 
-              {/* Logo Uploads */}
               <FileGroup label="Header Logo" onChange={setHeaderLogo} />
               <FileGroup label="Footer Logo" onChange={setFooterLogo} />
 
-              {/* Status Selects */}
               <div className="lg:w-[48%] md:w-[100%] sm:w-[100%] w-[100%] my-2">
                 <Label>Footer Status</Label>
                 <Select options={statusOptions} value={footerstatus} onChange={(value) => setFooterStatus(value)} />
@@ -178,27 +211,10 @@ const HeaderFooterSetting = ({ showHeaderFooterAction }: sectioncategoryprops) =
               </Button>
             </div>
           </form>
-          </ComponentCard>
-          </div>
+        </ComponentCard>
+      </div>
     </div>
   );
 };
-
-const InputGroup = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => (
-  <div className="lg:w-[48%] md:w-[100%] sm:w-[100%] w-[100%] my-2">
-    <Label>{label}</Label>
-    <Input type="color" value={value} onChange={(e) => onChange(e.target.value)} />
-  </div>
-);
-
-const FileGroup = ({ label, onChange }: { label: string; onChange: (file: File) => void }) => (
-  <div className="lg:w-[48%] md:w-[100%] sm:w-[100%] w-[100%] my-2">
-    <Label>{label}</Label>
-    <FileInput
-      className="custom-class" name=""
-      onChange={(e) => e.target.files && onChange(e.target.files[0])}
-    />
-  </div>
-);
 
 export default HeaderFooterSetting;

@@ -12,8 +12,8 @@ import Image from 'next/image'
 import categoryImg from "@/assets/category.jpeg";
 
 
-interface sectioncategoryprops{
-  showListAction:()=> void;
+interface sectioncategoryprops {
+  showListAction: () => void;
 }
 
 const Banner = ({ showListAction }: sectioncategoryprops) => {
@@ -28,7 +28,7 @@ const Banner = ({ showListAction }: sectioncategoryprops) => {
       setImage(file);
       const objectUrl = URL.createObjectURL(file);
       console.log("objectUrl", objectUrl);
-      
+
       setPreviewUrl(objectUrl);
     }
   };
@@ -54,8 +54,8 @@ const Banner = ({ showListAction }: sectioncategoryprops) => {
       `,
       variables: {
         input: {
-            bannerlink: bannerLink,
-            bannerimage: null, 
+          bannerlink: bannerLink,
+          bannerimage: null,
         },
       },
     };
@@ -109,46 +109,52 @@ const Banner = ({ showListAction }: sectioncategoryprops) => {
   return (
     <div>
       <PageBreadcrumb pageTitle="Banner" />
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-        <div className="space-y-6">
-        <ComponentCard title="Banner Section" isDropDownIcon={true} options={options}>
+     <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+  {/* Left Section */}
+  <div className="space-y-6 h-[400px] overflow-auto">
+    <ComponentCard title="Banner Section" isDropDownIcon={true} options={options} className="h-full">
       <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
+        <div>
           <Label>Category Name</Label>
-          <Input 
+          <Input
             type="text"
             defaultValue={bannerLink}
             onChange={(e) => setBannerLink(e.target.value)}
-            />
+          />
         </div>
         <div>
-        <Label>Category Image</Label>
-        <FileInput
-         className="custom-class"
-         name=""
-         onChange={handleImageChange}
+          <Label>Category Image</Label>
+          <FileInput
+            className="custom-class"
+            name=""
+            onChange={handleImageChange}
           />
-      </div>
+        </div>
         <div className="flex justify-center">
-        <Button size="sm" variant="primary">
-        {loading ? 'Submitting...' : 'Submit'}
-        </Button>
-      </div>
+          <Button size="sm" variant="primary">
+            {loading ? 'Submitting...' : 'Submit'}
+          </Button>
+        </div>
       </form>
     </ComponentCard>
-        </div>
-        <div className="space-y-6">
-        <ComponentCard title={previewUrl ? "Preview Image" : "Default Image"}>
+  </div>
+
+  {/* Right Section */}
+  <div className="space-y-6 h-[400px] overflow-hidden">
+    <ComponentCard title={previewUrl ? "Preview Image" : "Default Image"} className="h-full">
+      <div className="h-full w-full flex items-center justify-center overflow-hidden">
         <Image
-          width={500}
+          width={600}
           height={300}
           src={previewUrl || categoryImg}
           alt="Selected Preview"
-          className='w-full'
+          className="max-h-[450px] max-w-full object-contain"
         />
-        </ComponentCard>
-        </div>
       </div>
+    </ComponentCard>
+  </div>
+</div>
+
     </div>
   )
 }

@@ -12,8 +12,8 @@ import Image from 'next/image';
 import categoryImg from "@/assets/category.jpeg";
 
 
-interface sectioncategoryprops{
-  showListAction:()=> void;
+interface sectioncategoryprops {
+  showListAction: () => void;
 }
 
 const Sectioncategory = ({ showListAction }: sectioncategoryprops) => {
@@ -25,7 +25,7 @@ const Sectioncategory = ({ showListAction }: sectioncategoryprops) => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     console.log("file", file);
-    
+
     if (file) {
       setImage(file);
       const objectUrl = URL.createObjectURL(file);
@@ -109,45 +109,52 @@ const Sectioncategory = ({ showListAction }: sectioncategoryprops) => {
   return (
     <div>
       <PageBreadcrumb pageTitle="Section Category" />
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
-        <div className="space-y-6">
-        <ComponentCard title="Section Category Section" isDropDownIcon={true} options={options}>
+    <div className="grid grid-cols-1 gap-6 xl:grid-cols-2">
+  {/* Left Panel */}
+  <div className="space-y-6 h-[400px] overflow-auto">
+    <ComponentCard title="Section Category Section" isDropDownIcon={true} options={options} className="h-full">
       <form onSubmit={handleSubmit} className="space-y-6">
-      <div>
+        <div>
           <Label>Category Name</Label>
-          <Input 
+          <Input
             type="text"
             defaultValue={categoryName}
             onChange={(e) => setCategoryName(e.target.value)}
-            />
+          />
         </div>
         <div>
-        <Label>Category Image</Label>
-        <FileInput
-         className="custom-class"
-         name=""
-         onChange={handleImageChange}
+          <Label>Category Image</Label>
+          <FileInput
+            className="custom-class"
+            name=""
+            onChange={handleImageChange}
           />
-      </div>
+        </div>
         <div className="flex justify-center">
-        <Button size="sm" variant="primary">
-        {loading ? 'Submitting...' : 'Submit'}
-        </Button>
-      </div>
+          <Button size="sm" variant="primary">
+            {loading ? 'Submitting...' : 'Submit'}
+          </Button>
+        </div>
       </form>
     </ComponentCard>
-        </div>
-        <div className="space-y-6">
-        <ComponentCard title={previewUrl ? "Preview Image" : "Default Image"}>
+  </div>
+
+  {/* Right Panel */}
+  <div className="space-y-6 h-[400px] overflow-hidden">
+    <ComponentCard title={previewUrl ? "Preview Image" : "Default Image"} className="h-full">
+      <div className="h-full w-full flex items-center justify-center overflow-hidden">
         <Image
-          width={500}
-          height={800}
+          width={550}
+          height={500}
           src={previewUrl || categoryImg}
           alt="Selected Preview"
+          className="max-h-[450px] max-w-full object-contain"
         />
-        </ComponentCard>
-        </div>
       </div>
+    </ComponentCard>
+  </div>
+</div>
+
     </div>
   )
 }
