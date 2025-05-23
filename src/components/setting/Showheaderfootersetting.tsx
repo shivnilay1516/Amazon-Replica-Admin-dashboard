@@ -225,11 +225,11 @@ const Showheaderfootersetting = ({showHeaderFooterListAction}: ShowHeaderFooterP
     <div>
       <PageBreadcrumb pageTitle="Header/Footer Setting" />
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-1">
-        <div className="overflow-hidden rounded-xl bg-white">
+        <div className="overflow-hidden rounded-xl bg-white dark:bg-gray-800">
           <div className="overflow-x-auto w-full">
   <Table className="min-w-[800px] w-full border rounded-md">
     <TableHeader>
-      <TableRow className="bg-[#ecf3ff] text-[#465fff]">
+      <TableRow className="bg-[#ecf3ff] dark:bg-gray-800 text-[#465fff] dark:text-gray-400 dark:border-b">
         <TableCell isHeader className="font-semibold p-4">Section</TableCell>
         <TableCell isHeader className="font-semibold p-4">Logos</TableCell>
         <TableCell isHeader className="font-semibold p-4">Colors</TableCell>
@@ -283,7 +283,7 @@ const Showheaderfootersetting = ({showHeaderFooterListAction}: ShowHeaderFooterP
             <div><strong>Footer Top Color:</strong> {settings.footertopcolor}</div>
             <div><strong>Top Status:</strong> {settings.footertopstatus}</div>
             <div><strong>Footer BG:</strong> {settings.footerbgcolor}</div>
-            <div><strong>Footer Color:</strong> {settings.footercolor}</div>
+            <div><strong>Footer Text Color:</strong> {settings.footercolor}</div>
             <div><strong>Footer Status:</strong> {settings.footerstatus}</div>
           </TableCell>
           <TableCell className="p-4 text-center">

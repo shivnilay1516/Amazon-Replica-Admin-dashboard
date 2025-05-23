@@ -233,13 +233,13 @@ const fetchOptions = async () => {
       value: role.id.toString(),
       label: (
         <div className="flex items-center gap-2">
-          <Image
+          {/* <Image
             src={role.categoryimage}
             alt={role.categoryname}
             width={20}
             height={20}
             className="w-5 h-5 rounded-full"
-          />
+          /> */}
           {role.categoryname}
         </div>
       ),
@@ -799,7 +799,7 @@ const fetchOptions = async () => {
         const errMsg = resData.errors.map(err => err.message).join("\n");
         alert(`GraphQL Error(s):\n${errMsg}`);
       } else if (!resData.data?.advertisementcarouseladdSectionDesign) {
-        alert("Submission failed. No data returned.");
+        alert("Submission failedsle. No data returned.");
       } else {
         alert("Data submitted successfully!");
         console.log("GraphQL Response:", resData);
@@ -844,11 +844,32 @@ const fetchOptions = async () => {
     <div>
       <PageBreadcrumb pageTitle="Home Page Section" />  
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-2 items-start">
-        <div className="border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] rounded-2xl">
+        <div className="bg-white dark:border-gray-800 dark:bg-white/[0.03] rounded-2xl">
         <div className="space-y-6">
         <ComponentCard title="Section Category Section" isDropDownIcon={true} options={options}>
           <form className="space-y-6 mb-6 z-10">
             <Label>Select Category</Label>
+            {/* <select
+      className={`h-11 w-full appearance-none rounded-lg border border-gray-300  px-4 py-2.5 pr-11 text-sm shadow-theme-xs placeholder:text-gray-400 focus:border-brand-300 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 dark:focus:border-brand-800 "text-gray-400 dark:text-gray-400"`}
+      value={`Hi`}
+    >
+      <option
+        value=""
+        disabled
+        className="text-gray-700 dark:bg-gray-900 dark:text-gray-400"
+      >
+        Hii
+      </option>
+      {options.map((option) => (
+        <option
+          key="key1"
+          value="key1"
+          className="text-gray-700 dark:bg-gray-900 dark:text-gray-400 flex"
+        >
+          {option.label}
+        </option>
+      ))}
+    </select> */}
             <Select
               options={selectOptions}
               onChange={handleChange}

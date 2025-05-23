@@ -870,6 +870,7 @@ span.flatpickr-weekday,
   }
 }
 
-/* .dark .css-b62m3t-container{
-  background-color: #344054;
-} */
+input[type="color"]::-webkit-color-swatch {
+  border: 1px solid gray;
+  border-radius: 4px;
+}

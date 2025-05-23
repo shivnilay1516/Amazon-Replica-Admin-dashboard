@@ -3,6 +3,7 @@
 import React, { useState, FormEvent } from "react";
 import Label from "../form/Label";
 import Input from "../form/input/InputField";
+import Link from "next/link";
 
 export default function SignUpForm() {
   const[form, setForm]=useState({
@@ -17,6 +18,7 @@ export default function SignUpForm() {
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
 
+  console.log("loading",loading)
 
   const handleChange=(e:React.ChangeEvent<HTMLInputElement>)=>{
     setForm({...form, [e.target.name]:e.target.value});
@@ -84,7 +86,16 @@ export default function SignUpForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-md mx-auto mt-10">
+  <div className="space-y-4 max-w-md mx-auto mt-6 border border-gray-300 p-5 rounded-2xl">
+    <div className="mb-5 sm:mb-8">
+            <h1 className="font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
+              Seller Sign up
+            </h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+      Please fill in the details below to register as a seller.
+            </p>
+          </div>
+      <form onSubmit={handleSubmit}>
       <div className="space-y-5">
                <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                  <div className="sm:col-span-1">
@@ -177,7 +188,7 @@ export default function SignUpForm() {
                   />
                 </div>
                 <div className="flex items-center gap-3">
-                  <p className="inline-block font-normal text-gray-500 dark:text-gray-400">
+                  <p className="inline-block font-sm text-gray-500 dark:text-gray-400">
                     By creating an account means you agree to the{" "}
                     <span className="text-gray-800 dark:text-white/90">
                       Terms and Conditions,
@@ -186,21 +197,20 @@ export default function SignUpForm() {
                     <span className="text-gray-800 dark:text-white">
                       Privacy Policy
                     </span>
+                    <Link href="/adminlogin" className="text-brand-500 hover:text-brand-600 dark:text-brand-400 ml-2 text-sm underline">
+                Sign In
+                </Link>
                   </p>
+                  
                 </div>
+                
                 <div>
                   <button className="flex items-center justify-center w-full px-4 py-3 text-sm font-medium text-white transition rounded-lg bg-brand-500 shadow-theme-xs hover:bg-brand-600">
-                    Sign Up
+                    Register Seller
                   </button>
                 </div>
               </div>
-      <button
-        type="submit"
-        disabled={loading}
-        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 w-full"
-      >
-        {loading ? "Uploading..." : "Register Seller"}
-      </button>
     </form>
+  </div>
   );
 }

@@ -3,7 +3,6 @@ import React, { FormEvent, useState } from "react";
 import PageBreadcrumb from "../common/PageBreadcrumb";
 import ComponentCard from "../common/ComponentCard";
 import Label from "../form/Label";
-import Input from "../form/input/InputField";
 import FileInput from "../form/input/FileInput";
 import Button from "../ui/button/Button";
 import { toast } from "react-toastify";
@@ -186,8 +185,29 @@ const HeaderFooterSetting = ({ showHeaderFooterAction }: sectioncategoryprops) =
 
 const InputGroup = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => (
   <div className="lg:w-[48%] md:w-[100%] sm:w-[100%] w-[100%] my-2">
-    <Label>{label}</Label>
-    <Input type="color" value={value} onChange={(e) => onChange(e.target.value)} />
+    {/* <Label>{label}</Label>
+    <Input type="color" value={value} onChange={(e) => onChange(e.target.value)} /> */}
+
+     <div className="flex items-center justify-between gap-4">
+        <Label className="whitespace-nowrap">{label}</Label>
+        <div className="flex items-center gap-2 py-1 px-2 border rounded-lg shadow-sm bg-white dark:bg-gray-800 w-fit">
+          <label className="text-sm font-medium text-gray-700 dark:text-gray-400">Select Color</label>
+          <input
+            type="color"
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-10 h-10 cursor-pointer rounded-2xl "
+            style={{
+              appearance: 'none',
+              WebkitAppearance: 'none',
+              MozAppearance: 'none',
+              padding: 0,
+              backgroundColor: 'transparent',
+            }}
+          />
+        </div>
+ 
+      </div>
   </div>
 );
 
