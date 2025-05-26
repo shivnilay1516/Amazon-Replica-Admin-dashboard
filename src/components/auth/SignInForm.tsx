@@ -8,6 +8,7 @@ import {EyeCloseIcon, EyeIcon } from "@/icons";
 import Link from "next/link";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import Cookies from 'js-cookie';
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -18,6 +19,8 @@ export default function SignInForm() {
   const [error, setError] = useState("");
   const router = useRouter();
 
+  const token = Cookies.get('token');
+
   const handleLogin = async (e: React.FormEvent) => {
   e.preventDefault();
   setLoading(true);
@@ -26,13 +29,17 @@ export default function SignInForm() {
   try {
     const response = await fetch("/api/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+       },
       body: JSON.stringify({ email, password }),
+      credentials: "include",
     });
 
     const result = await response.json();
 
     if (result.success) {
+      localStorage.setItem('amazonToken', JSON.stringify(token));
       router.push("/");
     } else {
       setError("Invalid credentials");

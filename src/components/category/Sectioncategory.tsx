@@ -168,6 +168,7 @@ import { toast } from 'react-toastify';
 import axiosInstance from '@/lib/config/axiosInstance';
 import Image from 'next/image';
 import categoryImg from "@/assets/category.jpeg";
+import Cookies from 'js-cookie';   
  
  
 interface sectioncategoryprops {
@@ -179,6 +180,8 @@ const Sectioncategory = ({ showListAction }: sectioncategoryprops) => {
   const [image, setImage] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+      const token = Cookies.get('token');
  
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -229,7 +232,9 @@ const Sectioncategory = ({ showListAction }: sectioncategoryprops) => {
  
     try {
       const response = await axiosInstance.post("/graphql", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
+        headers: { "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+         },
       });
  
       const result = response.data;

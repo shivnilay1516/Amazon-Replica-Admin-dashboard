@@ -10,6 +10,7 @@ import Image from 'next/image';
 import axios from 'axios';
 import Input from '../form/input/InputField';
 import { SingleValue } from 'react-select';
+import Cookies from 'js-cookie';
 
 interface OptionType {
   value: string;
@@ -143,8 +144,9 @@ const Homepagedesign = ({showHomeListAction}: homepagedesigncategory) => {
   const[validCount, setValidCount]=useState(0);
 
   const dummy_img = '/images/carousel/carousel-02.png';
-  const API_URL = 'https://0a35-103-206-131-194.ngrok-free.app';
+  const API_URL = 'https://0737-103-206-131-194.ngrok-free.app';
 
+    const token = Cookies.get('token');
   // const API_URL = 'https://amazonreplica.onrender.com';
 
   useEffect(() => {
@@ -393,7 +395,9 @@ const fetchOptions = async () => {
   
     try {
       const response = await axios.post(`${API_URL}/graphql`, formDataToSubmit, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { 'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+         },
       });
   
       const responseData = response.data as {
@@ -578,7 +582,9 @@ const fetchOptions = async () => {
   
     try {
       const response = await axios.post(`${API_URL}/graphql`, formDataToSubmit, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { 'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+         },
       });
   
       const resData = response.data as {
@@ -787,7 +793,9 @@ const fetchOptions = async () => {
   
     try {
       const response = await axios.post(`${API_URL}/graphql`, presentationformDataToSubmit, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`,
+         }
       });
   
       const resData = response.data as {

@@ -75,7 +75,7 @@ const HomePageCategory = ({ showHomeListAction }: HomePageCategoryProps) => {
   const [editingItem, setEditingItem] = useState<SectionDesign | null>(null);
   const [formData, setFormData] = useState<Partial<SectionDesign>>({});
   void showHomeListAction;
-  const API_URL = 'https://0a35-103-206-131-194.ngrok-free.app';
+  const API_URL = 'https://0737-103-206-131-194.ngrok-free.app';
 
   console.log("formData",formData)
 

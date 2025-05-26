@@ -4,6 +4,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { Dropdown } from "../ui/dropdown/Dropdown";
 import { DropdownItem } from "../ui/dropdown/DropdownItem";
+import Cookies from 'js-cookie';
 
 export default function UserDropdown() {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,6 +13,9 @@ function toggleDropdown(e: React.MouseEvent<HTMLButtonElement, MouseEvent>) {
   e.stopPropagation();
   setIsOpen((prev) => !prev);
 }
+
+const token = Cookies.get('token');
+console.log("token",token)
 
   function closeDropdown() {
     setIsOpen(false);

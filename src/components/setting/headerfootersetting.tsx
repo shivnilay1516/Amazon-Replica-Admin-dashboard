@@ -68,8 +68,8 @@ const HeaderFooterSetting = ({ showHeaderFooterAction }: sectioncategoryprops) =
             footerbgcolor: footerbgcolor ?? "#ffffff",
             footercolor,
             footerstatus,
-            headerlogo: null, // will be injected via multipart
-            footerlogo: null, // will be injected via multipart
+            headerlogo: null,
+            footerlogo: null, 
           },
         },
       };
@@ -88,10 +88,11 @@ const HeaderFooterSetting = ({ showHeaderFooterAction }: sectioncategoryprops) =
 
       const Token="babsdakfksfasnfs"
   
-      const response = await fetch("https://0a35-103-206-131-194.ngrok-free.app/graphql", {
+      const response = await fetch("https://0737-103-206-131-194.ngrok-free.app/graphql", {
         method: "POST",
         body: formData,
-        headers: { Authorization: `Bearer ${Token}`,}
+        headers: { Authorization: `Bearer ${Token}`,
+      }
       });
   
       const result = await response.json();
@@ -146,7 +147,6 @@ const HeaderFooterSetting = ({ showHeaderFooterAction }: sectioncategoryprops) =
         <ComponentCard title="Header/Footer Setting" isDropDownIcon={true} options={options}>
           <form onSubmit={handleSubmit}>
             <div className="flex flex-wrap justify-between">
-              {/* Header and Footer Color Pickers */}
               <InputGroup label="Header Background Color" value={headerbgcolor} onChange={setHeaderBgColor} />
               <InputGroup label="Header Text Color" value={headercolor} onChange={setHeaderColor} />
               <InputGroup label="Footer Top Background Color" value={footertopbgcolor} onChange={setFooterTopBgColor} />
@@ -155,12 +155,10 @@ const HeaderFooterSetting = ({ showHeaderFooterAction }: sectioncategoryprops) =
               <InputGroup label="Footer  Color" value={footercolor} onChange={setFooterColor} />
               <InputGroup label="Response Status Color" value={resStatus} onChange={setResStatus} />
               <InputGroup label="Response Message Color" value={resMessage} onChange={setResMessage} />
-
-              {/* Logo Uploads */}
+      
               <FileGroup label="Header Logo" onChange={setHeaderLogo} />
               <FileGroup label="Footer Logo" onChange={setFooterLogo} />
 
-              {/* Status Selects */}
               <div className="lg:w-[48%] md:w-[100%] sm:w-[100%] w-[100%] my-2">
                 <Label>Footer Status</Label>
                 <Select options={statusOptions} value={footerstatus} onChange={(value) => setFooterStatus(value)} />
@@ -185,9 +183,6 @@ const HeaderFooterSetting = ({ showHeaderFooterAction }: sectioncategoryprops) =
 
 const InputGroup = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => (
   <div className="lg:w-[48%] md:w-[100%] sm:w-[100%] w-[100%] my-2">
-    {/* <Label>{label}</Label>
-    <Input type="color" value={value} onChange={(e) => onChange(e.target.value)} /> */}
-
      <div className="flex items-center justify-between gap-4">
         <Label className="whitespace-nowrap">{label}</Label>
         <div className="flex items-center gap-2 py-1 px-2 border rounded-lg shadow-sm bg-white dark:bg-gray-800 w-fit">

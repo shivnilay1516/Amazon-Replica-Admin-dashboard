@@ -460,7 +460,7 @@ const navItems: NavItem[] = [
   {
     icon: <GridIcon />,
     name: "Setting",
-    subItems: [{ name: "Header/Footer Seting", path: "/headerfootersetting", pro: false }],
+    subItems: [{ name: "Header/Footer Setting", path: "/headerfootersetting", pro: false }],
   },
   // {
   //   icon: <CalenderIcon />,

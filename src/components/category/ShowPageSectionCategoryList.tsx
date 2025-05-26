@@ -56,7 +56,7 @@ const ShowPageSectionCategoryList = ({ showListAction }: Props) => {
   const [isUpdating, setIsUpdating] = useState(false); // Add loading state for update
   const [isDeleting, setIsDeleting] = useState(false); // Add loading state for delete
   void showListAction;
-  const API_URL = 'https://0a35-103-206-131-194.ngrok-free.app';
+  const API_URL = 'https://0737-103-206-131-194.ngrok-free.app';
 
   // useEffect(() => {
   //   const fetchCategoryData = async () => {

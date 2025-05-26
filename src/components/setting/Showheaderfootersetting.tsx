@@ -50,7 +50,7 @@ interface GetHomeSettingDetailsResponse {
 }
 
 
-const API_URL = 'https://0a35-103-206-131-194.ngrok-free.app';
+const API_URL = 'https://0737-103-206-131-194.ngrok-free.app';
 
 const Showheaderfootersetting = ({showHeaderFooterListAction}: ShowHeaderFooterProps) => {
   const [settings, setSettings] = useState<HomeSetting | null>(null);

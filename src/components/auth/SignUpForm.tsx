@@ -71,7 +71,7 @@ export default function SignUpForm() {
     formData.append("0", logoFile);
 
     try {
-      const res = await fetch("https://0a35-103-206-131-194.ngrok-free.app/graphql", {
+      const res = await fetch("https://0737-103-206-131-194.ngrok-free.app/graphql", {
         method: "POST",
         body: formData,
       });
